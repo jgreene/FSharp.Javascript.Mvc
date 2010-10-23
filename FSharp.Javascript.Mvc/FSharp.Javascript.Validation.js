@@ -47,23 +47,23 @@ this.ErrorField = x    };
 this.FieldNames = x    };
     FormValidator.Validator.prototype.set_Validator = function(x){
 this.Validator = x    };
-    FormValidator.AjaxValidator = function(url,arguments){
+    FormValidator.RemoteValidator = function(url,arguments){
         this.arguments = arguments;
         this.url = url;
     };
-    FormValidator.AjaxValidator.prototype.Equality = function(compareTo){
+    FormValidator.RemoteValidator.prototype.Equality = function(compareTo){
         var result = true;
         result = ((result) && (Microsoft.FSharp.Core.Operators.op_Equality(this.get_Url)(compareTo.get_Url)));
         result = ((result) && (Microsoft.FSharp.Core.Operators.op_Equality(this.get_Arguments)(compareTo.get_Arguments)));
         return result;
     };
-    FormValidator.AjaxValidator.prototype.get_url = function(){
+    FormValidator.RemoteValidator.prototype.get_url = function(){
 return this.url    };
-    FormValidator.AjaxValidator.prototype.get_arguments = function(){
+    FormValidator.RemoteValidator.prototype.get_arguments = function(){
 return this.arguments    };
-    FormValidator.AjaxValidator.prototype.set_url = function(x){
+    FormValidator.RemoteValidator.prototype.set_url = function(x){
 this.url = x    };
-    FormValidator.AjaxValidator.prototype.set_arguments = function(x){
+    FormValidator.RemoteValidator.prototype.set_arguments = function(x){
 this.arguments = x    };
             FormValidator.setupValidation = function(formValidator){
 return (function(){
@@ -491,5 +491,38 @@ FormValidator.setValueOnModel = function (value) {
         return function (model) {
             model[property] = value;
         }
+    }
+}
+
+FormValidator.getRemoteValidationResult = function (remoteValidator) {
+    return function (model) {
+        var data = {}
+        $.each(remoteValidator.arguments, function () {
+            var arg = this;
+            var methodArg = arg.Item1;
+            var modelArg = arg.Item2;
+
+            data[methodArg] = model[modelArg];
+        });
+        var result = $.ajax({
+            global: false,
+            async: false,
+            type: 'POST',
+            dataType: 'json',
+            url: remoteValidator.url,
+            data: data,
+            complete: function (result) {
+
+            }
+        }).responseText;
+
+        result = $.parseJSON(result);
+
+
+        if (result.Value != null) {
+            return new Microsoft.FSharp.Core.FSharpOption.Some(result.Value);
+        }
+
+        return new Microsoft.FSharp.Core.FSharpOption.None();
     }
 }

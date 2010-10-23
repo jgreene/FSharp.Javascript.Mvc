@@ -42,11 +42,18 @@
     </Content>
     <None Include="Build.fsx" />
     <Content Include="FSharp.Javascript.Validation.js" />
+    <Compile Include="ValidationProvider.fs" />
+    <Compile Include="OptionBinder.fs" />
+    <Compile Include="RecordBinder.fs" />
+    <None Include="LinkScanner.fsx" />
+    <Compile Include="Setup.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Javascript">
       <HintPath>C:\Projects\FSharp.Javascript.Mvc\Dependencies\FSharp.Javascript.dll</HintPath>
     </Reference>
+    <Reference Include="FSharp.PowerPack, Version=1.9.9.9, Culture=neutral, PublicKeyToken=a19089b1c74d0809" />
+    <Reference Include="FSharp.PowerPack.Linq, Version=1.9.9.9, Culture=neutral, PublicKeyToken=a19089b1c74d0809" />
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />

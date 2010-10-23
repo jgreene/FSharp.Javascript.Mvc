@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using FSharp.Javascript.Mvc;
 
 namespace FSharp.Javascript.Web
 {
@@ -36,7 +37,11 @@ namespace FSharp.Javascript.Web
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
 
+            FSharp.Javascript.Mvc.Setup.initialize();
+
             Validators.setup();
+
+            
         }
     }
 }

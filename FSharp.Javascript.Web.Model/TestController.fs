@@ -11,10 +11,14 @@ type TestController() =
         base.View()
 
     member this.FirstTestModel() =
-        let model = { Id = 0; IsSelected = false; Name = ""; DateOfBirth = None; PickANumber = 5; Email = "" }
+        let model = { Id = 0; IsSelected = false; Name = ""; DateOfBirth = Some System.DateTime.Now; PickANumber = 5; Email = "" }
         base.View(model)
 
     member this.FirstTestModelSubmit(model:FirstTestModel) =
+        let test = match model.DateOfBirth with
+                    | Some x -> true
+                    | None -> false
+
         if base.ModelState.IsValid = false then
             base.View("FirstTestModel", model)
         else
@@ -22,4 +26,9 @@ type TestController() =
 
 
     member this.ValidateEmail (id:int, email:string) =
-        base.Json(Some("Invalid Email"))
+        if email = "test@test.com" then
+            base.Json(None)
+        else
+            base.Json(Some("Invalid Email"))
+
+        

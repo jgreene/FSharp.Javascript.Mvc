@@ -59,204 +59,208 @@ FormValidator.Validator.prototype.set_FieldNames = function (x) {
 FormValidator.Validator.prototype.set_Validator = function (x) {
     this.Validator = x
 };
+FormValidator.RemoteValidator = function (url, arguments) {
+    this.arguments = arguments;
+    this.url = url;
+};
+FormValidator.RemoteValidator.prototype.Equality = function (compareTo) {
+    var result = true;
+    result = ((result) && (Microsoft.FSharp.Core.Operators.op_Equality(this.get_Url)(compareTo.get_Url)));
+    result = ((result) && (Microsoft.FSharp.Core.Operators.op_Equality(this.get_Arguments)(compareTo.get_Arguments)));
+    return result;
+};
+FormValidator.RemoteValidator.prototype.get_url = function () {
+    return this.url
+};
+FormValidator.RemoteValidator.prototype.get_arguments = function () {
+    return this.arguments
+};
+FormValidator.RemoteValidator.prototype.set_url = function (x) {
+    this.url = x
+};
+FormValidator.RemoteValidator.prototype.set_arguments = function (x) {
+    this.arguments = x
+};
 FormValidator.setupValidation = function (formValidator) {
-    var form = new FSharp.Javascript.Jquery.jquery(Microsoft.FSharp.Core.Operators.op_Addition(formValidator.get_Form())("#"));
-    var getInputName = function (fieldName) {
-        return (function () {
-            if (Microsoft.FSharp.Core.Operators.op_Equality("")(formValidator.get_Prefix())) {
-                return Microsoft.FSharp.Core.Operators.op_Addition("']")(Microsoft.FSharp.Core.Operators.op_Addition(fieldName)("input[name='"))
-            } else {
-                return Microsoft.FSharp.Core.Operators.op_Addition("']")(Microsoft.FSharp.Core.Operators.op_Addition(fieldName)(Microsoft.FSharp.Core.Operators.op_Addition(".")(Microsoft.FSharp.Core.Operators.op_Addition(formValidator.get_Prefix())("input[name='"))))
-            };
-        })()
-    };
-    var getElement = function (prop) {
-        return (function () {
-            if (Microsoft.FSharp.Core.Operators.op_Equality("")(formValidator.get_Prefix())) {
-                return new FSharp.Javascript.Jquery.jquery(Microsoft.FSharp.Core.Operators.op_Addition(prop)("#"))
-            } else {
-                return new FSharp.Javascript.Jquery.jquery(Microsoft.FSharp.Core.Operators.op_Addition(prop)(Microsoft.FSharp.Core.Operators.op_Addition(".")(Microsoft.FSharp.Core.Operators.op_Addition(formValidator.get_Prefix())("#"))))
-            };
-        })()
-    };
-    var getErrorElement = function (elem) {
-        var id = Microsoft.FSharp.Core.Operators.op_Addition("_validationMessage")(elem.attr("id"));
-        return new FSharp.Javascript.Jquery.jquery(Microsoft.FSharp.Core.Operators.op_Addition(id)("#"));
-    };
-    var errors = Microsoft.FSharp.Core.Operators.Ref(Microsoft.FSharp.Collections.MapModule.Empty());
-    var addError = function (property) {
-        return function (errorMessage) {
+    return (function () {
+        var form = new FSharp.Javascript.Jquery.jquery(Microsoft.FSharp.Core.Operators.op_Addition(formValidator.get_Form())("#"));
+        var getInputName = function (fieldName) {
+            return (function () {
+                if (Microsoft.FSharp.Core.Operators.op_Equality("")(formValidator.get_Prefix())) {
+                    return Microsoft.FSharp.Core.Operators.op_Addition("']")(Microsoft.FSharp.Core.Operators.op_Addition(fieldName)("input[name='"))
+                } else {
+                    return Microsoft.FSharp.Core.Operators.op_Addition("']")(Microsoft.FSharp.Core.Operators.op_Addition(fieldName)(Microsoft.FSharp.Core.Operators.op_Addition(".")(Microsoft.FSharp.Core.Operators.op_Addition(formValidator.get_Prefix())("input[name='"))))
+                };
+            })()
+        };
+        var getElement = function (prop) {
+            return (function () {
+                if (Microsoft.FSharp.Core.Operators.op_Equality("")(formValidator.get_Prefix())) {
+                    return new FSharp.Javascript.Jquery.jquery(Microsoft.FSharp.Core.Operators.op_Addition(prop)("#"))
+                } else {
+                    return new FSharp.Javascript.Jquery.jquery(Microsoft.FSharp.Core.Operators.op_Addition(prop)(Microsoft.FSharp.Core.Operators.op_Addition(".")(Microsoft.FSharp.Core.Operators.op_Addition(formValidator.get_Prefix())("#"))))
+                };
+            })()
+        };
+        var getErrorElement = function (elem) {
+            return (function () {
+                var id = Microsoft.FSharp.Core.Operators.op_Addition("_validationMessage")(elem.attr("id"));
+                return new FSharp.Javascript.Jquery.jquery(Microsoft.FSharp.Core.Operators.op_Addition(id)("#"));
+            })()
+        };
+        var errors = Microsoft.FSharp.Core.Operators.Ref(Microsoft.FSharp.Collections.MapModule.Empty());
+        var addError = function (property) {
+            return function (errorMessage) {
+                return (function () {
+                    if (errors.get_Value().ContainsKey(property)) {
+                        return (function () {
+                            var propertyErrors = Microsoft.FSharp.Core.Operators.op_PipeRight(function (table) {
+                                return Microsoft.FSharp.Collections.MapModule.TryFind(table)(property)
+                            })(errors.get_Value());
+                            return (function () {
+                                if (Microsoft.FSharp.Core.FSharpOption.get_IsSome(propertyErrors)) {
+                                    return (function () {
+                                        if (Microsoft.FSharp.Core.Operators.op_PipeRight(function (list) {
+                                            return Microsoft.FSharp.Collections.ListModule.Exists(list)(function (x) {
+                                                return Microsoft.FSharp.Core.Operators.op_Equality(errorMessage)(x)
+                                            })
+                                        })(propertyErrors.get_Value())) {
+                                            return null
+                                        } else {
+                                            return Microsoft.FSharp.Core.Operators.op_ColonEquals(errors.get_Value().Remove(property).Add(new Microsoft.FSharp.Collections.FSharpList.Cons(propertyErrors.get_Value(), errorMessage))(property))(errors)
+                                        };
+                                    })()
+                                } else {
+                                    return null
+                                };
+                            })();
+                        })()
+                    } else {
+                        return Microsoft.FSharp.Core.Operators.op_ColonEquals(errors.get_Value().Add(new Microsoft.FSharp.Collections.FSharpList.Cons(new Microsoft.FSharp.Collections.FSharpList.Empty(), errorMessage))(property))(errors)
+                    };
+                })()
+            }
+        };
+        var getErrors = function (property) {
+            return (function () {
+                if (errors.get_Value().ContainsKey(property)) {
+                    return Microsoft.FSharp.Core.Operators.op_PipeRight(function (table) {
+                        return Microsoft.FSharp.Collections.MapModule.Find(table)(property)
+                    })(errors.get_Value())
+                } else {
+                    return new Microsoft.FSharp.Collections.FSharpList.Empty()
+                };
+            })()
+        };
+        var displayErrors = function (property) {
+            return (function () {
+                var elem = getElement(property);
+                var errorElement = getErrorElement(elem);
+                return (function () {
+                    if (errors.get_Value().ContainsKey(property)) {
+                        return (function () {
+                            var errs = Microsoft.FSharp.Core.Operators.op_PipeRight(function (table) {
+                                return Microsoft.FSharp.Collections.MapModule.TryFind(table)(property)
+                            })(errors.get_Value());
+                            return (function () {
+                                if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(errs)) {
+                                    return Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
+                                        return Microsoft.FSharp.Core.Operators.Ignore(value)
+                                    })(errorElement.hide())
+                                } else {
+                                    return (function () {
+                                        var errorMessage = Microsoft.FSharp.Core.Operators.op_PipeRight(function (list) {
+                                            return Microsoft.FSharp.Collections.ListModule.Fold(list)("")(function (acc) {
+                                                return function (next) {
+                                                    return Microsoft.FSharp.Core.Operators.op_Addition(acc)(Microsoft.FSharp.Core.Operators.op_Addition("<br/>")(next))
+                                                }
+                                            })
+                                        })(errs.get_Value());
+                                        return Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
+                                            return Microsoft.FSharp.Core.Operators.Ignore(value)
+                                        })(errorElement.html(errorMessage).show());
+                                    })()
+                                };
+                            })();
+                        })()
+                    } else {
+                        return Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
+                            return Microsoft.FSharp.Core.Operators.Ignore(value)
+                        })(errorElement.hide())
+                    };
+                })();
+            })()
+        };
+        var resetErrors = function (property) {
             return (function () {
                 if (errors.get_Value().ContainsKey(property)) {
                     return (function () {
-                        var propertyErrors = Microsoft.FSharp.Core.Operators.op_PipeRight(function (table) {
-                            return Microsoft.FSharp.Collections.MapModule.TryFind(table)(property)
-                        })(errors.get_Value());
-                        return (function () {
-                            if (Microsoft.FSharp.Core.FSharpOption.get_IsSome(propertyErrors)) {
-                                return (function () {
-                                    if (Microsoft.FSharp.Core.Operators.op_PipeRight(function (list) {
-                                        return Microsoft.FSharp.Collections.ListModule.Exists(list)(function (x) {
-                                            return Microsoft.FSharp.Core.Operators.op_Equality(errorMessage)(x)
-                                        })
-                                    })(propertyErrors.get_Value())) {
-                                        return null
-                                    } else {
-                                        return Microsoft.FSharp.Core.Operators.op_ColonEquals(errors.get_Value().Remove(property).Add(new Microsoft.FSharp.Collections.FSharpList.Cons(propertyErrors.get_Value(), errorMessage))(property))(errors)
-                                    };
-                                })()
-                            } else {
-                                return null
-                            };
-                        })();
+                        Microsoft.FSharp.Core.Operators.op_ColonEquals(errors.get_Value().Remove(property))(errors);
+                        return displayErrors(property);
                     })()
                 } else {
-                    return Microsoft.FSharp.Core.Operators.op_ColonEquals(errors.get_Value().Add(new Microsoft.FSharp.Collections.FSharpList.Cons(new Microsoft.FSharp.Collections.FSharpList.Empty(), errorMessage))(property))(errors)
+                    return null
                 };
             })()
-        }
-    };
-    var getErrors = function (property) {
-        return (function () {
-            if (errors.get_Value().ContainsKey(property)) {
-                return Microsoft.FSharp.Core.Operators.op_PipeRight(function (table) {
-                    return Microsoft.FSharp.Collections.MapModule.Find(table)(property)
-                })(errors.get_Value())
-            } else {
-                return new Microsoft.FSharp.Collections.FSharpList.Empty()
-            };
-        })()
-    };
-    var displayErrors = function (property) {
-        var elem = getElement(property);
-        var errorElement = getErrorElement(elem);
-        return (function () {
-            if (errors.get_Value().ContainsKey(property)) {
+        };
+        var checkTypes = function (props) {
+            return function (model) {
                 return (function () {
-                    var errs = Microsoft.FSharp.Core.Operators.op_PipeRight(function (table) {
-                        return Microsoft.FSharp.Collections.MapModule.TryFind(table)(property)
-                    })(errors.get_Value());
-                    return (function () {
-                        if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(errs)) {
-                            return Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
-                                return Microsoft.FSharp.Core.Operators.Ignore(value)
-                            })(errorElement.hide())
-                        } else {
+                    var getValue = function (property) {
+                        return FormValidator.getValueFromModel(property)(model)
+                    };
+                    var setValue = function (tupledArg) {
+                        return (function () {
+                            var prop = tupledArg.Item1;
+                            var value = tupledArg.Item2;
+                            return FormValidator.setValueOnModel(value)(prop)(model);
+                        })()
+                    };
+                    var result = Microsoft.FSharp.Core.Operators.Ref(true);
+                    var error = function (prop) {
+                        return function (errorMessage) {
                             return (function () {
-                                var errorMessage = Microsoft.FSharp.Core.Operators.op_PipeRight(function (list) {
-                                    return Microsoft.FSharp.Collections.ListModule.Fold(list)("")(function (acc) {
-                                        return function (next) {
-                                            return Microsoft.FSharp.Core.Operators.op_Addition(acc)(Microsoft.FSharp.Core.Operators.op_Addition("<br/>")(next))
-                                        }
-                                    })
-                                })(errs.get_Value());
-                                return Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
-                                    return Microsoft.FSharp.Core.Operators.Ignore(value)
-                                })(errorElement.html(errorMessage).show());
+                                addError(prop)(errorMessage);
+                                displayErrors(prop);
+                                return Microsoft.FSharp.Core.Operators.op_ColonEquals(false)(result);
                             })()
-                        };
-                    })();
-                })()
-            } else {
-                return Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
-                    return Microsoft.FSharp.Core.Operators.Ignore(value)
-                })(errorElement.hide())
-            };
-        })();
-    };
-    var resetErrors = function (property) {
-        return (function () {
-            if (errors.get_Value().ContainsKey(property)) {
-                return (function () {
-                    Microsoft.FSharp.Core.Operators.op_ColonEquals(errors.get_Value().Remove(property))(errors);
-                    return displayErrors(property);
-                })()
-            } else {
-                return null
-            };
-        })()
-    };
-    var checkTypes = function (props) {
-        return function (model) {
-            var getValue = function (property) {
-                return FormValidator.getValueFromModel(property)(model)
-            };
-            var setValue = function (tupledArg) {
-                var prop = tupledArg.Item1;
-                var value = tupledArg.Item2;
-                return FormValidator.setValueOnModel(value)(prop)(model);
-            };
-            var result = Microsoft.FSharp.Core.Operators.Ref(true);
-            var error = function (prop) {
-                return function (errorMessage) {
-                    addError(prop)(errorMessage);
-                    displayErrors(prop);
-                    return Microsoft.FSharp.Core.Operators.op_ColonEquals(false)(result);
-                }
-            };
-            Microsoft.FSharp.Core.Operators.op_PipeRight(function (array) {
-                return Microsoft.FSharp.Collections.ArrayModule.Iterate(array)(function (tupledArg) {
-                    var prop = tupledArg.Item1;
-                    var typ = tupledArg.Item2;
-                    var value = getValue(prop);
-                    return (function () {
-                        if (Microsoft.FSharp.Core.Operators.op_Equality("DateTime option")(typ)) {
+                        }
+                    };
+                    Microsoft.FSharp.Core.Operators.op_PipeRight(function (array) {
+                        return Microsoft.FSharp.Collections.ArrayModule.Iterate(array)(function (tupledArg) {
                             return (function () {
-                                var parsed = FSharp.Javascript.Library.DateTime.TryParse2.Static(value);
+                                var prop = tupledArg.Item1;
+                                var typ = tupledArg.Item2;
+                                var value = getValue(prop);
                                 return (function () {
-                                    if ((function () {
-                                        if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
-                                            return Microsoft.FSharp.Core.Operators.op_Inequality("")(value)
-                                        } else {
-                                            return false
-                                        };
-                                    })()) {
-                                        return error(prop)("Invalid DateTime option")
+                                    if (Microsoft.FSharp.Core.Operators.op_Equality("DateTime option")(typ)) {
+                                        return (function () {
+                                            var parsed = FSharp.Javascript.Library.DateTime.TryParse2.Static(value);
+                                            return (function () {
+                                                if ((function () {
+                                                    if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
+                                                        return Microsoft.FSharp.Core.Operators.op_Inequality("")(value)
+                                                    } else {
+                                                        return false
+                                                    };
+                                                })()) {
+                                                    return error(prop)("Invalid DateTime option")
+                                                } else {
+                                                    return (function (tupledArg) {
+                                                        return (function () {
+                                                            var arg00 = tupledArg.Item1;
+                                                            var arg01 = tupledArg.Item2;
+                                                            return setValue(new Tuple(arg00, arg01));
+                                                        })()
+                                                    })(new Tuple(prop, parsed))
+                                                };
+                                            })();
+                                        })()
                                     } else {
-                                        return (function (tupledArg) {
-                                            var arg00 = tupledArg.Item1;
-                                            var arg01 = tupledArg.Item2;
-                                            return setValue(new Tuple(arg00, arg01));
-                                        })(new Tuple(prop, parsed))
-                                    };
-                                })();
-                            })()
-                        } else {
-                            return (function () {
-                                if (Microsoft.FSharp.Core.Operators.op_Equality("Boolean option")(typ)) {
-                                    return (function () {
-                                        var parsed = FSharp.Javascript.Library.Boolean.TryParse2.Static(value);
                                         return (function () {
-                                            if ((function () {
-                                                if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
-                                                    return Microsoft.FSharp.Core.Operators.op_Inequality("")(value)
-                                                } else {
-                                                    return false
-                                                };
-                                            })()) {
-                                                return error(prop)("Invalid Boolean option")
-                                            } else {
-                                                return (function (tupledArg) {
-                                                    var arg00 = tupledArg.Item1;
-                                                    var arg01 = tupledArg.Item2;
-                                                    return setValue(new Tuple(arg00, arg01));
-                                                })(new Tuple(prop, parsed))
-                                            };
-                                        })();
-                                    })()
-                                } else {
-                                    return (function () {
-                                        var x = typ;
-                                        return (function () {
-                                            if ((function () {
-                                                if (x.Contains("Int")) {
-                                                    return x.Contains("option")
-                                                } else {
-                                                    return false
-                                                };
-                                            })()) {
+                                            if (Microsoft.FSharp.Core.Operators.op_Equality("Boolean option")(typ)) {
                                                 return (function () {
-                                                    var parsed = FSharp.Javascript.Library.Int16.TryParse2.Static(value);
+                                                    var parsed = FSharp.Javascript.Library.Boolean.TryParse2.Static(value);
                                                     return (function () {
                                                         if ((function () {
                                                             if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
@@ -265,202 +269,260 @@ FormValidator.setupValidation = function (formValidator) {
                                                                 return false
                                                             };
                                                         })()) {
-                                                            return error(prop)("Invalid Integer option")
+                                                            return error(prop)("Invalid Boolean option")
                                                         } else {
                                                             return (function (tupledArg) {
-                                                                var arg00 = tupledArg.Item1;
-                                                                var arg01 = tupledArg.Item2;
-                                                                return setValue(new Tuple(arg00, arg01));
+                                                                return (function () {
+                                                                    var arg00 = tupledArg.Item1;
+                                                                    var arg01 = tupledArg.Item2;
+                                                                    return setValue(new Tuple(arg00, arg01));
+                                                                })()
                                                             })(new Tuple(prop, parsed))
                                                         };
                                                     })();
                                                 })()
                                             } else {
                                                 return (function () {
-                                                    if (Microsoft.FSharp.Core.Operators.op_Equality("DateTime")(typ)) {
-                                                        return (function () {
-                                                            var parsed = FSharp.Javascript.Library.DateTime.TryParse2.Static(value);
+                                                    var x = typ;
+                                                    return (function () {
+                                                        if ((function () {
+                                                            if (x.Contains("Int")) {
+                                                                return x.Contains("option")
+                                                            } else {
+                                                                return false
+                                                            };
+                                                        })()) {
                                                             return (function () {
-                                                                if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
-                                                                    return error(prop)("Invalid DateTime")
-                                                                } else {
-                                                                    return null
-                                                                };
-                                                            })();
-                                                        })()
-                                                    } else {
-                                                        return (function () {
-                                                            var x = typ;
+                                                                var parsed = FSharp.Javascript.Library.Int16.TryParse2.Static(value);
+                                                                return (function () {
+                                                                    if ((function () {
+                                                                        if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
+                                                                            return Microsoft.FSharp.Core.Operators.op_Inequality("")(value)
+                                                                        } else {
+                                                                            return false
+                                                                        };
+                                                                    })()) {
+                                                                        return error(prop)("Invalid Integer option")
+                                                                    } else {
+                                                                        return (function (tupledArg) {
+                                                                            return (function () {
+                                                                                var arg00 = tupledArg.Item1;
+                                                                                var arg01 = tupledArg.Item2;
+                                                                                return setValue(new Tuple(arg00, arg01));
+                                                                            })()
+                                                                        })(new Tuple(prop, parsed))
+                                                                    };
+                                                                })();
+                                                            })()
+                                                        } else {
                                                             return (function () {
-                                                                if (x.Contains("Int")) {
+                                                                if (Microsoft.FSharp.Core.Operators.op_Equality("DateTime")(typ)) {
                                                                     return (function () {
-                                                                        var parsed = FSharp.Javascript.Library.Int16.TryParse2.Static(value);
+                                                                        var parsed = FSharp.Javascript.Library.DateTime.TryParse2.Static(value);
                                                                         return (function () {
                                                                             if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
-                                                                                return error(prop)("Invalid Integer")
+                                                                                return error(prop)("Invalid DateTime")
                                                                             } else {
-                                                                                return (function (tupledArg) {
-                                                                                    var arg00 = tupledArg.Item1;
-                                                                                    var arg01 = tupledArg.Item2;
-                                                                                    return setValue(new Tuple(arg00, arg01));
-                                                                                })(new Tuple(prop, parsed.get_Value()))
+                                                                                return null
                                                                             };
                                                                         })();
                                                                     })()
                                                                 } else {
                                                                     return (function () {
-                                                                        if (Microsoft.FSharp.Core.Operators.op_Equality("Decimal")(typ)) {
-                                                                            return (function () {
-                                                                                var parsed = FSharp.Javascript.Library.Decimal.TryParse2.Static(value);
+                                                                        var x = typ;
+                                                                        return (function () {
+                                                                            if (x.Contains("Int")) {
                                                                                 return (function () {
-                                                                                    if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
-                                                                                        return error(prop)("Invalid Decimal")
-                                                                                    } else {
-                                                                                        return (function (tupledArg) {
-                                                                                            var arg00 = tupledArg.Item1;
-                                                                                            var arg01 = tupledArg.Item2;
-                                                                                            return setValue(new Tuple(arg00, arg01));
-                                                                                        })(new Tuple(prop, parsed.get_Value()))
-                                                                                    };
-                                                                                })();
-                                                                            })()
-                                                                        } else {
-                                                                            return (function () {
-                                                                                if (Microsoft.FSharp.Core.Operators.op_Equality("Double")(typ)) {
+                                                                                    var parsed = FSharp.Javascript.Library.Int16.TryParse2.Static(value);
                                                                                     return (function () {
-                                                                                        var parsed = FSharp.Javascript.Library.Decimal.TryParse2.Static(value);
-                                                                                        return (function () {
-                                                                                            if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
-                                                                                                return error(prop)("Invalid Decimal")
-                                                                                            } else {
-                                                                                                return (function (tupledArg) {
+                                                                                        if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
+                                                                                            return error(prop)("Invalid Integer")
+                                                                                        } else {
+                                                                                            return (function (tupledArg) {
+                                                                                                return (function () {
                                                                                                     var arg00 = tupledArg.Item1;
                                                                                                     var arg01 = tupledArg.Item2;
                                                                                                     return setValue(new Tuple(arg00, arg01));
-                                                                                                })(new Tuple(prop, parsed.get_Value()))
-                                                                                            };
-                                                                                        })();
-                                                                                    })()
-                                                                                } else {
-                                                                                    return (function () {
-                                                                                        if (Microsoft.FSharp.Core.Operators.op_Equality("Single")(typ)) {
+                                                                                                })()
+                                                                                            })(new Tuple(prop, parsed.get_Value()))
+                                                                                        };
+                                                                                    })();
+                                                                                })()
+                                                                            } else {
+                                                                                return (function () {
+                                                                                    if (Microsoft.FSharp.Core.Operators.op_Equality("Decimal")(typ)) {
+                                                                                        return (function () {
+                                                                                            var parsed = FSharp.Javascript.Library.Decimal.TryParse2.Static(value);
                                                                                             return (function () {
-                                                                                                var parsed = FSharp.Javascript.Library.Decimal.TryParse2.Static(value);
-                                                                                                return (function () {
-                                                                                                    if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
-                                                                                                        return error(prop)("Invalid Decimal")
-                                                                                                    } else {
-                                                                                                        return (function (tupledArg) {
+                                                                                                if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
+                                                                                                    return error(prop)("Invalid Decimal")
+                                                                                                } else {
+                                                                                                    return (function (tupledArg) {
+                                                                                                        return (function () {
                                                                                                             var arg00 = tupledArg.Item1;
                                                                                                             var arg01 = tupledArg.Item2;
                                                                                                             return setValue(new Tuple(arg00, arg01));
-                                                                                                        })(new Tuple(prop, parsed.get_Value()))
-                                                                                                    };
-                                                                                                })();
-                                                                                            })()
-                                                                                        } else {
-                                                                                            return (function () {
-                                                                                                if (Microsoft.FSharp.Core.Operators.op_Equality("Boolean")(typ)) {
+                                                                                                        })()
+                                                                                                    })(new Tuple(prop, parsed.get_Value()))
+                                                                                                };
+                                                                                            })();
+                                                                                        })()
+                                                                                    } else {
+                                                                                        return (function () {
+                                                                                            if (Microsoft.FSharp.Core.Operators.op_Equality("Double")(typ)) {
+                                                                                                return (function () {
+                                                                                                    var parsed = FSharp.Javascript.Library.Decimal.TryParse2.Static(value);
                                                                                                     return (function () {
-                                                                                                        var parsed = FSharp.Javascript.Library.Boolean.TryParse2.Static(value);
-                                                                                                        return (function () {
-                                                                                                            if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
-                                                                                                                return error(prop)("Invalid Boolean")
-                                                                                                            } else {
-                                                                                                                return (function (tupledArg) {
+                                                                                                        if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
+                                                                                                            return error(prop)("Invalid Decimal")
+                                                                                                        } else {
+                                                                                                            return (function (tupledArg) {
+                                                                                                                return (function () {
                                                                                                                     var arg00 = tupledArg.Item1;
                                                                                                                     var arg01 = tupledArg.Item2;
                                                                                                                     return setValue(new Tuple(arg00, arg01));
-                                                                                                                })(new Tuple(prop, parsed.get_Value()))
+                                                                                                                })()
+                                                                                                            })(new Tuple(prop, parsed.get_Value()))
+                                                                                                        };
+                                                                                                    })();
+                                                                                                })()
+                                                                                            } else {
+                                                                                                return (function () {
+                                                                                                    if (Microsoft.FSharp.Core.Operators.op_Equality("Single")(typ)) {
+                                                                                                        return (function () {
+                                                                                                            var parsed = FSharp.Javascript.Library.Decimal.TryParse2.Static(value);
+                                                                                                            return (function () {
+                                                                                                                if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
+                                                                                                                    return error(prop)("Invalid Decimal")
+                                                                                                                } else {
+                                                                                                                    return (function (tupledArg) {
+                                                                                                                        return (function () {
+                                                                                                                            var arg00 = tupledArg.Item1;
+                                                                                                                            var arg01 = tupledArg.Item2;
+                                                                                                                            return setValue(new Tuple(arg00, arg01));
+                                                                                                                        })()
+                                                                                                                    })(new Tuple(prop, parsed.get_Value()))
+                                                                                                                };
+                                                                                                            })();
+                                                                                                        })()
+                                                                                                    } else {
+                                                                                                        return (function () {
+                                                                                                            if (Microsoft.FSharp.Core.Operators.op_Equality("Boolean")(typ)) {
+                                                                                                                return (function () {
+                                                                                                                    var parsed = FSharp.Javascript.Library.Boolean.TryParse2.Static(value);
+                                                                                                                    return (function () {
+                                                                                                                        if (Microsoft.FSharp.Core.FSharpOption.get_IsNone(parsed)) {
+                                                                                                                            return error(prop)("Invalid Boolean")
+                                                                                                                        } else {
+                                                                                                                            return (function (tupledArg) {
+                                                                                                                                return (function () {
+                                                                                                                                    var arg00 = tupledArg.Item1;
+                                                                                                                                    var arg01 = tupledArg.Item2;
+                                                                                                                                    return setValue(new Tuple(arg00, arg01));
+                                                                                                                                })()
+                                                                                                                            })(new Tuple(prop, parsed.get_Value()))
+                                                                                                                        };
+                                                                                                                    })();
+                                                                                                                })()
+                                                                                                            } else {
+                                                                                                                return null
                                                                                                             };
-                                                                                                        })();
-                                                                                                    })()
-                                                                                                } else {
-                                                                                                    return null
-                                                                                                };
-                                                                                            })()
-                                                                                        };
-                                                                                    })()
-                                                                                };
-                                                                            })()
-                                                                        };
+                                                                                                        })()
+                                                                                                    };
+                                                                                                })()
+                                                                                            };
+                                                                                        })()
+                                                                                    };
+                                                                                })()
+                                                                            };
+                                                                        })();
                                                                     })()
                                                                 };
-                                                            })();
-                                                        })()
-                                                    };
+                                                            })()
+                                                        };
+                                                    })();
+                                                })()
+                                            };
+                                        })()
+                                    };
+                                })();
+                            })()
+                        })
+                    })(props);
+                    return result.get_Value();
+                })()
+            }
+        };
+        Microsoft.FSharp.Core.Operators.op_PipeRight(function (source) {
+            return Microsoft.FSharp.Collections.SeqModule.Iterate(source)(function (validator) {
+                return (function () {
+                    var field = validator.get_ErrorField();
+                    var properties = validator.get_FieldNames();
+                    var inputName = getInputName(field);
+                    var input = form.find(inputName);
+                    Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
+                        return Microsoft.FSharp.Core.Operators.Ignore(value)
+                    })(input.fsharpBind(function (unitVar0) {
+                        return (function () {
+                            var model = FormValidator.getFormModel(formValidator);
+                            return (function () {
+                                if (checkTypes(properties)(model)) {
+                                    return (function () {
+                                        var result = validator.get_Validator()(model);
+                                        return (function () {
+                                            if (result instanceof Microsoft.FSharp.Core.FSharpOption.None) {
+                                                return true
+                                            } else {
+                                                return (function () {
+                                                    var x = result.get_Value();
+                                                    addError(field)(x);
+                                                    return false;
                                                 })()
                                             };
                                         })();
                                     })()
-                                };
-                            })()
-                        };
-                    })();
-                })
-            })(props);
-            return result.get_Value();
-        }
-    };
-    Microsoft.FSharp.Core.Operators.op_PipeRight(function (source) {
-        return Microsoft.FSharp.Collections.SeqModule.Iterate(source)(function (validator) {
-            var field = validator.get_ErrorField();
-            var properties = validator.get_FieldNames();
-            var inputName = getInputName(field);
-            var input = form.find(inputName);
-            Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
-                return Microsoft.FSharp.Core.Operators.Ignore(value)
-            })(input.fsharpBind(function (unitVar0) {
-                var model = FormValidator.getFormModel(formValidator);
-                return (function () {
-                    if (checkTypes(properties)(model)) {
-                        return (function () {
-                            var result = validator.get_Validator()(model);
-                            return (function () {
-                                if (result instanceof Microsoft.FSharp.Core.FSharpOption.None) {
-                                    return true
                                 } else {
-                                    return (function () {
-                                        var x = result.get_Value();
-                                        addError(field)(x);
-                                        return false;
-                                    })()
+                                    return false
                                 };
                             })();
                         })()
-                    } else {
-                        return false
-                    };
-                })();
-            })("FSharpValidate"));
-            return Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
-                return Microsoft.FSharp.Core.Operators.Ignore(value)
-            })(input.blur(function (unitVar0) {
-                resetErrors(field);
-                Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
-                    return Microsoft.FSharp.Core.Operators.Ignore(value)
-                })(input.triggerHandler("FSharpValidate"));
-                return displayErrors(field);
-            }));
-        })
-    })(formValidator.get_Validators());
-    return Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
-        return Microsoft.FSharp.Core.Operators.Ignore(value)
-    })(form.submit(function (unitVar0) {
-        Microsoft.FSharp.Core.Operators.op_PipeRight(function (source) {
-            return Microsoft.FSharp.Collections.SeqModule.Iterate(source)(function (validator) {
-                var field = validator.get_ErrorField();
-                var inputName = getInputName(field);
-                var input = form.find(inputName);
-                resetErrors(field);
-                Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
-                    return Microsoft.FSharp.Core.Operators.Ignore(value)
-                })(input.triggerHandler("FSharpValidate"));
-                return displayErrors(field);
+                    })("FSharpValidate"));
+                    return Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
+                        return Microsoft.FSharp.Core.Operators.Ignore(value)
+                    })(input.blur(function (unitVar0) {
+                        return (function () {
+                            resetErrors(field);
+                            Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
+                                return Microsoft.FSharp.Core.Operators.Ignore(value)
+                            })(input.triggerHandler("FSharpValidate"));
+                            return displayErrors(field);
+                        })()
+                    }));
+                })()
             })
         })(formValidator.get_Validators());
-        return Microsoft.FSharp.Core.Operators.op_Equality((0))(errors.get_Value().get_Count());
-    }));
+        return Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
+            return Microsoft.FSharp.Core.Operators.Ignore(value)
+        })(form.submit(function (unitVar0) {
+            return (function () {
+                Microsoft.FSharp.Core.Operators.op_PipeRight(function (source) {
+                    return Microsoft.FSharp.Collections.SeqModule.Iterate(source)(function (validator) {
+                        return (function () {
+                            var field = validator.get_ErrorField();
+                            var inputName = getInputName(field);
+                            var input = form.find(inputName);
+                            resetErrors(field);
+                            Microsoft.FSharp.Core.Operators.op_PipeRight(function (value) {
+                                return Microsoft.FSharp.Core.Operators.Ignore(value)
+                            })(input.triggerHandler("FSharpValidate"));
+                            return displayErrors(field);
+                        })()
+                    })
+                })(formValidator.get_Validators());
+                return Microsoft.FSharp.Core.Operators.op_Equality((0))(errors.get_Value().get_Count());
+            })()
+        }));
+    })()
 }; ; ;
 if (FormValidator.main) {
     FormValidator.main()
@@ -556,5 +618,35 @@ FormValidator.setValueOnModel = function (value) {
         return function (model) {
             model[property] = value;
         }
+    }
+}
+
+FormValidator.getRemoteValidationResult = function (remoteValidator) {
+    return function (model) {
+        var data = {}
+        $.each(remoteValidator.arguments, function () {
+            var arg = this;
+            var methodArg = arg.Item1;
+            var modelArg = arg.Item2;
+
+            data[methodArg] = model[modelArg];
+        });
+        var result = $.ajax({
+            global: false,
+            async: false,
+            type: 'POST',
+            dataType: 'json',
+            url: remoteValidator.url,
+            data: data
+        }).responseText;
+
+        result = $.parseJSON(result);
+
+
+        if (result.Value != null) {
+            return new Microsoft.FSharp.Core.FSharpOption.Some(result.Value);
+        }
+
+        return new Microsoft.FSharp.Core.FSharpOption.None();
     }
 }

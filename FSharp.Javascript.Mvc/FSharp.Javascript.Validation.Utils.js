@@ -96,8 +96,32 @@ FormValidator.setValueOnModel = function (value) {
 FormValidator.getRemoteValidationResult = function (remoteValidator) {
     return function (model) {
         var data = {}
-        $.post(remoteValidator.url, data, function (result) {
+        $.each(remoteValidator.arguments, function () {
+            var arg = this;
+            var methodArg = arg.Item1;
+            var modelArg = arg.Item2;
 
-        }, 'json');
+            data[methodArg] = model[modelArg];
+        });
+        var result = $.ajax({
+            global: false,
+            async: false,
+            type: 'POST',
+            dataType: 'json',
+            url: remoteValidator.url,
+            data: data,
+            complete: function (result) {
+
+            }
+        }).responseText;
+
+        result = $.parseJSON(result);
+
+
+        if (result.Value != null) {
+            return new Microsoft.FSharp.Core.FSharpOption.Some(result.Value);
+        }
+
+        return new Microsoft.FSharp.Core.FSharpOption.None();
     }
 }

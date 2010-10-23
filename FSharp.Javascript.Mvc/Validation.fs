@@ -5,24 +5,31 @@ open System.Web.Mvc
 open System.Collections.Generic
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
+open Microsoft.FSharp.Linq.QuotationEvaluation
 open FormValidator
 
 type IValidator =
     abstract typ : Type;
     abstract errorField : string
     abstract properties : (string * string) list;
-    //abstract predicate : obj;
     abstract expr : Microsoft.FSharp.Quotations.Expr
     abstract javascript : string;
+    abstract validate : obj -> string option
 
 type Validator<'a>(errorField, properties, expr: Microsoft.FSharp.Quotations.Expr<'a -> string option>) =
+    let validator = expr.Compile()()
     interface IValidator with
 
         member this.typ = typeof<'a>
         member this.errorField = errorField
         member this.properties = properties
         member this.expr = expr :> Microsoft.FSharp.Quotations.Expr
+        
         member this.javascript = (FSharp.Javascript.Converter.convert expr).Replace(";", "")
+
+        member this.validate model = 
+            let model = model :?> 'a
+            validator(model)
 
 let private validators = new System.Collections.Concurrent.ConcurrentBag<IValidator>();
 
@@ -130,7 +137,7 @@ let private getUrlInfo<'a, 'b, 'c>(expr:Expr<'a -> ('b  -> 'c)>) =
          
          let array = Expr.NewArray(typeof<Tuple<string,string>>, valueArgs)
          
-         Expr.Cast<RemoteValidator>(Expr.NewRecord(typeof<RemoteValidator>, [Expr.Value(""); array]))
+         Expr.Cast<RemoteValidator>(Expr.NewRecord(typeof<RemoteValidator>, [Expr.Value("/test/ValidateEmail"); array]))
             
     | _ -> failwith "Invalid Remote Validator"
 

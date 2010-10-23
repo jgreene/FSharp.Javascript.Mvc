@@ -4,18 +4,17 @@
 open System.IO
 open FSharp.Javascript
 
-System.Threading.ThreadPool.QueueUserWorkItem(fun _ ->
-    let utilitiesPath = "../../FSharp.Javascript.Validation.Utils.js"
 
-    let finalPath = "../../FSharp.Javascript.Validation.js"
+let utilitiesPath = "../../FSharp.Javascript.Validation.Utils.js"
 
-    let utilitiesScript = File.ReadAllText(utilitiesPath)
+let finalPath = "../../FSharp.Javascript.Validation.js"
 
-    let formValidatorScript = Converter.convertModule (System.Type.GetType("FormValidator, FSharp.Javascript.Mvc"))
+let utilitiesScript = File.ReadAllText(utilitiesPath)
 
-    let finalScript = formValidatorScript + System.Environment.NewLine + utilitiesScript
+let formValidatorScript = Converter.convertModule (System.Type.GetType("FormValidator, FSharp.Javascript.Mvc"))
 
-    File.WriteAllText(finalPath, finalScript)
+let finalScript = formValidatorScript + System.Environment.NewLine + utilitiesScript
 
-) |> ignore
+File.WriteAllText(finalPath, finalScript)
+
 
