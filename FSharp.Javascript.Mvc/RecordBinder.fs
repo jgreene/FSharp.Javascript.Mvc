@@ -126,3 +126,15 @@ type RecordDefaultModelBinder() =
 
         else
             base.BindModel(cc,bc)
+
+    override this.OnModelUpdated(cc,bc) =
+        let startedValid = new System.Collections.Generic.Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
+
+        for validationResult in ModelValidator.GetModelValidator(bc.ModelMetadata, cc).Validate(null) do
+            let subPropertyName = createSubPropertyName bc.ModelName validationResult.MemberName
+
+            if startedValid.ContainsKey(subPropertyName) = false then do
+                startedValid.[subPropertyName] <- bc.ModelState.IsValidField(subPropertyName)
+
+            if startedValid.[subPropertyName] then do
+                bc.ModelState.AddModelError(subPropertyName, validationResult.Message)

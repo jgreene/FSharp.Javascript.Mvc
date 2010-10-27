@@ -26,10 +26,6 @@ get_Validators : function(){{ return this.Validators; }}
             return string.Format(script, helper.ViewContext.FormContext.FormId, "", Validation.getJavascriptForValidators(type));
         }
 
-
-
-
-
         public static string FSharpValidation<TModel, TProp>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TProp>> expression)
         {
             string expressionString = ExpressionHelper.GetExpressionText((LambdaExpression)expression);

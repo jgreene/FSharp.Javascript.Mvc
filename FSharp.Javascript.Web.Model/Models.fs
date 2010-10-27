@@ -1,5 +1,7 @@
 ﻿module Models
 
+open System.Web.Mvc
+
 type FirstTestModel = {
     Id : int;
     IsSelected : bool;

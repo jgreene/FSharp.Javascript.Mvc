@@ -32,6 +32,9 @@
     <DocumentationFile>bin\Release\FSharp.Javascript.Web.Model.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Javascript">
+      <HintPath>..\Dependencies\FSharp.Javascript.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
@@ -54,6 +57,7 @@
     <Compile Include="Models.fs" />
     <Compile Include="TestController.fs" />
     <Compile Include="Validators.fs" />
+    <Compile Include="TestModule.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />

@@ -47,22 +47,28 @@ this.ErrorField = x    };
 this.FieldNames = x    };
     FormValidator.Validator.prototype.set_Validator = function(x){
 this.Validator = x    };
-    FormValidator.RemoteValidator = function(url,arguments){
+    FormValidator.RemoteValidator = function(url,errorField,arguments){
         this.arguments = arguments;
+        this.errorField = errorField;
         this.url = url;
     };
     FormValidator.RemoteValidator.prototype.Equality = function(compareTo){
         var result = true;
         result = ((result) && (Microsoft.FSharp.Core.Operators.op_Equality(this.get_Url)(compareTo.get_Url)));
+        result = ((result) && (Microsoft.FSharp.Core.Operators.op_Equality(this.get_ErrorField)(compareTo.get_ErrorField)));
         result = ((result) && (Microsoft.FSharp.Core.Operators.op_Equality(this.get_Arguments)(compareTo.get_Arguments)));
         return result;
     };
     FormValidator.RemoteValidator.prototype.get_url = function(){
 return this.url    };
+    FormValidator.RemoteValidator.prototype.get_errorField = function(){
+return this.errorField    };
     FormValidator.RemoteValidator.prototype.get_arguments = function(){
 return this.arguments    };
     FormValidator.RemoteValidator.prototype.set_url = function(x){
 this.url = x    };
+    FormValidator.RemoteValidator.prototype.set_errorField = function(x){
+this.errorField = x    };
     FormValidator.RemoteValidator.prototype.set_arguments = function(x){
 this.arguments = x    };
             FormValidator.setupValidation = function(formValidator){
@@ -504,24 +510,36 @@ FormValidator.getRemoteValidationResult = function (remoteValidator) {
 
             data[methodArg] = model[modelArg];
         });
-        var result = $.ajax({
-            global: false,
-            async: false,
+
+        $.ajax({
             type: 'POST',
             dataType: 'json',
             url: remoteValidator.url,
             data: data,
-            complete: function (result) {
-
+            success: function (result) {
+                if (result.Value != null) {
+                    FormValidator.addError(remoteValidator.errorField, result.Value)
+                }
             }
-        }).responseText;
+        });
+        //        var result = $.ajax({
+        //            global: false,
+        //            async: false,
+        //            type: 'POST',
+        //            dataType: 'json',
+        //            url: remoteValidator.url,
+        //            data: data,
+        //            complete: function (result) {
 
-        result = $.parseJSON(result);
+        //            }
+        //        }).responseText;
+
+        //        result = $.parseJSON(result);
 
 
-        if (result.Value != null) {
-            return new Microsoft.FSharp.Core.FSharpOption.Some(result.Value);
-        }
+        //        if (result.Value != null) {
+        //            return new Microsoft.FSharp.Core.FSharpOption.Some(result.Value);
+        //        }
 
         return new Microsoft.FSharp.Core.FSharpOption.None();
     }

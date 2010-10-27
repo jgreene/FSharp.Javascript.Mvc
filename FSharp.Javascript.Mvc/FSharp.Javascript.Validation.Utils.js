@@ -103,24 +103,36 @@ FormValidator.getRemoteValidationResult = function (remoteValidator) {
 
             data[methodArg] = model[modelArg];
         });
-        var result = $.ajax({
-            global: false,
-            async: false,
+
+        $.ajax({
             type: 'POST',
             dataType: 'json',
             url: remoteValidator.url,
             data: data,
-            complete: function (result) {
-
+            success: function (result) {
+                if (result.Value != null) {
+                    FormValidator.addError(remoteValidator.errorField, result.Value)
+                }
             }
-        }).responseText;
+        });
+        //        var result = $.ajax({
+        //            global: false,
+        //            async: false,
+        //            type: 'POST',
+        //            dataType: 'json',
+        //            url: remoteValidator.url,
+        //            data: data,
+        //            complete: function (result) {
 
-        result = $.parseJSON(result);
+        //            }
+        //        }).responseText;
+
+        //        result = $.parseJSON(result);
 
 
-        if (result.Value != null) {
-            return new Microsoft.FSharp.Core.FSharpOption.Some(result.Value);
-        }
+        //        if (result.Value != null) {
+        //            return new Microsoft.FSharp.Core.FSharpOption.Some(result.Value);
+        //        }
 
         return new Microsoft.FSharp.Core.FSharpOption.None();
     }

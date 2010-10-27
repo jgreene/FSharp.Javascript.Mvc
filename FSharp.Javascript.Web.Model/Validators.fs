@@ -27,11 +27,4 @@ let setup() =
                             if result then None else Some "must be between 0 and 10"
                 @>
 
-    registerRemoteValidator <@ fun (x:FirstTestModel) -> fun (cont:FSharp.Javascript.Web.TestController) -> cont.ValidateEmail(x.Id,x.Email) @>
-
-//    let urlInfo = getUrlInfo <@ fun (x:FirstTestModel) -> fun (cont:FSharp.Javascript.Web.TestController) -> cont.ValidateEmail(x.Id,x.Email) @>
-//
-//
-//    registerValidator <@ fun (x:FirstTestModel) ->
-//                        getValidationResult %%urlInfo
-//                @>
+    //registerRemoteValidator <@ fun (x:FirstTestModel) -> fun (cont:FSharp.Javascript.Web.TestController) -> cont.ValidateEmail(x.Id,x.Email) @>

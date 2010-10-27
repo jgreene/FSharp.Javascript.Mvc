@@ -6,9 +6,13 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
 
+    <%--<%: Html.GetCompiledModule(typeof(FSharp.Javascript.Web.TestModule)) %>--%>
+
     <h2>FirstTestModel</h2>
 
     <% Html.EnableClientValidation(); Html.EnableUnobtrusiveJavaScript(false); %>
+
+    <%= Html.ValidationSummary() %>
 
     <%using (Html.BeginForm("FirstTestModelSubmit", "test")){ %>
         <label>IsSelected:</label>
@@ -24,7 +28,7 @@
         <br />
 
         <label>Date Of Birth:</label>
-        <%= Html.TextBoxFor(a => a.DateOfBirth) %>
+        <%= Html.EditorFor(a => a.DateOfBirth, "OptionDateTime") %>
         <%= Html.ValidationMessageFor(a => a.DateOfBirth)%>
         <br />
         <br />

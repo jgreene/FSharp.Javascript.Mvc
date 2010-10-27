@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.FSharp.Core;
+using System.Web.Mvc;
+using System.Linq.Expressions;
 
 namespace FSharp.Javascript.Mvc
 {
@@ -41,6 +43,16 @@ namespace FSharp.Javascript.Mvc
         public static string ToShortDateString(this FSharpOption<DateTime> option)
         {
             if (FSharpOption<DateTime>.get_IsSome(option))
+            {
+                return option.Value.ToShortDateString();
+            }
+            
+            return "";
+        }
+
+        public static string ToShortDateString(this DateTime? option)
+        {
+            if (option.HasValue)
             {
                 return option.Value.ToShortDateString();
             }

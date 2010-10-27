@@ -31,7 +31,7 @@ type Validator<'a>(errorField, properties, expr: Microsoft.FSharp.Quotations.Exp
             let model = model :?> 'a
             validator(model)
 
-let private validators = new System.Collections.Concurrent.ConcurrentBag<IValidator>();
+let mutable private validators = new System.Collections.Concurrent.ConcurrentBag<IValidator>();
 
 let private getPropertyType (typ:System.Type) =
     match typ with
@@ -45,9 +45,6 @@ let private getProperties<'a, 'b> (expression:Expr<'a -> 'b>) =
 
     let rec loop expr acc =
         match expr with
-//        | Patterns.Value(x,y) ->
-//            acc
-//        | Patterns.Lambda(x,e) -> loop e acc
         | Patterns.PropertyGet(e, p, xs) -> 
             if e.IsSome then
                 let e' = loop e.Value acc
@@ -60,33 +57,6 @@ let private getProperties<'a, 'b> (expression:Expr<'a -> 'b>) =
                     (p.Name, getPropertyType p.PropertyType)::acc
                 else
                     acc
-
-//        | Patterns.IfThenElse(s,b,e) ->
-//            let s' = loop s acc
-//            let b' = loop b s'
-//            loop e b'
-//        | Patterns.Application(l,r) ->
-//            let l' = loop l acc
-//            let r' = loop r acc
-//            r'
-//        | Patterns.NewUnionCase(i, args) ->
-//            let args' = [for a in args do yield! (loop a [])]
-//            args'@acc
-//        | Patterns.Call(e,m, args) ->
-//            let args' = [for a in args do yield! (loop a [])]
-//            if e.IsSome then
-//                let e' = loop e.Value acc
-//                args'@e'
-//            else
-//                args'@acc
-//        | Patterns.Let(v, value, after) ->
-//            let value' = loop value acc
-//            let after' = loop after value'
-//            after'
-//        | Patterns.Quote(x) ->
-//            loop x acc
-//        | Patterns.Coerce(x, t) ->
-//            loop x acc
         
         | ShapeVar v -> acc
         | ShapeLambda (var, expr) ->
@@ -156,6 +126,8 @@ let registerRemoteValidator<'a, 'b, 'c>(expr:Expr<'a -> ('b  -> 'c)>)  =
     let validator = new Validator<'a>(propertyName, properties, expr) :> IValidator
 
     validators.Add(validator)
+
+let clearValidators () = validators <- new System.Collections.Concurrent.ConcurrentBag<IValidator>()
 
 
 let getJavascriptForValidators (typ:Type) =

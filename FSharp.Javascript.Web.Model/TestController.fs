@@ -11,7 +11,7 @@ type TestController() =
         base.View()
 
     member this.FirstTestModel() =
-        let model = { Id = 0; IsSelected = false; Name = ""; DateOfBirth = Some System.DateTime.Now; PickANumber = 5; Email = "" }
+        let model = { Id = 0; IsSelected = false; Name = ""; DateOfBirth = Some System.DateTime.Now; PickANumber = 5; Email = ""; }
         base.View(model)
 
     member this.FirstTestModelSubmit(model:FirstTestModel) =

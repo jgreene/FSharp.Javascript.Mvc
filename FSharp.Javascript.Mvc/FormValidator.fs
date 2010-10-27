@@ -17,6 +17,7 @@ type FormValidator<'a> = {
 
 type RemoteValidator = {
     url : string
+    errorField : string
     arguments : (string * string) array
 }
 
