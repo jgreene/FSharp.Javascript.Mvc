@@ -24,9 +24,10 @@ type RemoteValidator = {
     arguments : (string * string) array
 }
 
-let getRemoteValidationResult model (expr:RemoteValidator) = Some ""
+let getRemoteValidationResult model (validator:RemoteValidator) = Some ""
 
-let getFormModel<'a> (formValidator : FormValidator<'a>) = new obj() :?> 'a
+//onCompleteValidation is a hack to have asynchronous remote validators
+let getFormModel<'a> (formValidator : FormValidator<'a>) (onCompleteValidation) = new obj() :?> 'a
 
 let getValueFromModel (model:'a) (property:string) = ""
 
@@ -181,7 +182,10 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
 
                     input.fsharpBind("FSharpValidate", 
                         (fun () -> 
-                            let model = getFormModel formValidator
+                            let model = getFormModel formValidator (fun field error ->
+                                                                    addError field error
+                                                                    displayErrors field
+                                                                )
                             if (checkTypes properties model) then
                             
                                 let result = validator.Validator(model)

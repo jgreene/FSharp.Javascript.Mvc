@@ -103,14 +103,16 @@ let private getUrlInfo<'a, 'b, 'c>(expr:Expr<'a -> ('b  -> 'c)>) =
          let parameters = m.GetParameters()
          
          let arguments = seq { for i in {0..(parameters.Length - 1) } -> (parameters.[i].Name, getArg(args.[i])) }
-
+         
 
          let valueArgs = [for (a,b) in arguments -> Expr.NewTuple([Expr.Value(a);Expr.Value(b)])]
 
          
          let array = Expr.NewArray(typeof<Tuple<string,string>>, valueArgs)
+
+
          
-         Expr.Cast<RemoteValidator>(Expr.NewRecord(typeof<RemoteValidator>, [Expr.Value("/test/ValidateEmail"); array]))
+         Expr.Cast<RemoteValidator>(Expr.NewRecord(typeof<RemoteValidator>, [Expr.Value("/test/ValidateEmail"); Expr.Value("Email"); array]))
             
     | _ -> failwith "Invalid Remote Validator"
 

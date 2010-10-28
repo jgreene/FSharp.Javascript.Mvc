@@ -69,14 +69,23 @@ var getObjectFromPrefix = function (obj, prefix) {
     return tempObj;
 }
 
-FormValidator.getFormModel = function (formValidator) {
-    var form = $('#' + formValidator.Form)
-    var model = form.serializeObject()
+//onCompleteValidation is a 
+FormValidator.getFormModel = function (onCompleteValidation) {
+    return function (formValidator) {
+        var form = $('#' + formValidator.Form)
+        var model = form.serializeObject()
 
-    if (formValidator.Prefix == "")
-        return model
+        var result = null
 
-    return getObjectFromPrefix(model, formValidator.Prefix)
+        if (formValidator.Prefix == "")
+            result = model
+        else
+            result = getObjectFromPrefix(model, formValidator.Prefix)
+
+        result.onCompleteValidation = onCompleteValidation
+
+        return result
+    }
 }
 
 FormValidator.getValueFromModel = function (property) {
@@ -111,7 +120,7 @@ FormValidator.getRemoteValidationResult = function (remoteValidator) {
             data: data,
             success: function (result) {
                 if (result.Value != null) {
-                    FormValidator.addError(remoteValidator.errorField, result.Value)
+                    model.onCompleteValidation(remoteValidator.errorField)(result.Value)
                 }
             }
         });
