@@ -12,10 +12,10 @@ namespace FSharp.Javascript.Mvc
 
         const string script = @"<script type='text/javascript'>
         $(document).ready(function(){{
-            FormValidator.setupValidation({{ Form : '{0}', Prefix : '{1}', Validators : {2}, 
+            FormValidator.setupValidation({{ Form : '{0}', Prefix : '{1}', Type : '{2}', 
 get_Form : function() {{ return this.Form; }}, 
 get_Prefix : function(){{ return this.Prefix; }},
-get_Validators : function(){{ return this.Validators; }}
+get_Type : function(){{ return this.Type; }}
 }})
         }})
         </script>";
@@ -23,7 +23,7 @@ get_Validators : function(){{ return this.Validators; }}
         {
             Type type = typeof(TModel);
 
-            return string.Format(script, helper.ViewContext.FormContext.FormId, "", Validation.getJavascriptForValidators(type));
+            return string.Format(script, helper.ViewContext.FormContext.FormId, "", type.FullName);
         }
 
         public static string FSharpValidation<TModel, TProp>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TProp>> expression)
@@ -33,7 +33,7 @@ get_Validators : function(){{ return this.Validators; }}
 
             var type = typeof(TProp);
 
-            return string.Format(script, helper.ViewContext.FormContext.FormId, fullHtmlFieldName, Validation.getJavascriptForValidators(type));
+            return string.Format(script, helper.ViewContext.FormContext.FormId, fullHtmlFieldName, type.FullName);
         }
     }
 }

@@ -72,6 +72,9 @@ let private getProperties<'a, 'b> (expression:Expr<'a -> 'b>) =
 let getValidators (typ:Type) =
     validators |> Seq.filter (fun x -> x.typ = typ)
 
+let getAllValidators () =
+    validators
+
 
 let registerValidator<'a>(expr:Expr<'a -> string option>) =
     let properties = (getProperties expr) |> Seq.distinct |> Seq.toList

@@ -25,5 +25,12 @@ namespace FSharp.Javascript.Mvc
 
             return new MvcHtmlString(string.Format(ScriptTag, urlHelper.Action("GetRequiredScripts", "FScript")));
         }
+
+        public static MvcHtmlString GetAllValidators(this HtmlHelper helper)
+        {
+            var urlHelper = new UrlHelper(helper.ViewContext.RequestContext);
+
+            return new MvcHtmlString(string.Format(ScriptTag, urlHelper.Action("GetAllValidators", "FScript")));
+        }
     }
 }

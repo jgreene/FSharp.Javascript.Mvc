@@ -8,8 +8,11 @@ open FSharp.Javascript.Library
 type FormValidator<'a> = {
     Form : string
     Prefix : string
-    Validators : Validator<'a> array
-} and Validator<'a> = {
+    Type : string
+} 
+
+type Validator<'a> = {
+    Type : string
     ErrorField : string
     FieldNames : (string * string) array
     Validator : 'a -> string option
@@ -28,6 +31,8 @@ let getFormModel<'a> (formValidator : FormValidator<'a>) = new obj() :?> 'a
 let getValueFromModel (model:'a) (property:string) = ""
 
 let setValueOnModel (model:'a) (property:string) (value:obj) = ()
+
+let currentValidators<'a> () = [||] : 'a array
 
 
 [<ReflectedDefinition>]
@@ -165,8 +170,9 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
 
         result.Value
             
+    let formValidators = (currentValidators ()) |> Seq.filter (fun validator -> validator.Type = formValidator.Type)
 
-    formValidator.Validators 
+    formValidators    
     |> Seq.iter (fun validator -> do
                     let field = validator.ErrorField
                     let properties = validator.FieldNames
@@ -199,7 +205,7 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
 
     form.submit(fun () ->
 
-        formValidator.Validators
+        formValidators
         |> Seq.iter (fun validator -> do
             let field = validator.ErrorField
             let inputName = getInputName field

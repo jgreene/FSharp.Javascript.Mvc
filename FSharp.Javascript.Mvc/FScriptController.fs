@@ -40,7 +40,31 @@ type FScriptController() =
             cache.Insert(key, result)
             result
 
+    let getValidator (validator:Validation.IValidator) =
+        let getProperties props =
+            let props = props |> List.map (fun (name,typ) -> "{ Item1 : \"" + name + "\", Item2 : \"" + typ + "\" }")
+            System.String.Join(",", props)
 
+        sprintf "{ 
+            Type : '%s', 
+            ErrorField : '%s', 
+            FieldNames : [%s], 
+            Validator : %s,
+            get_Type : function() { return this.Type },
+            get_ErrorField : function() { return this.ErrorField },
+            get_FieldNames : function() { return this.FieldNames },
+            get_Validator : function () { return this.Validator }
+            }" 
+            validator.typ.FullName 
+            validator.errorField 
+            (getProperties validator.properties)
+            validator.javascript
+
+    let getValidators () =
+        let validators = Validation.getAllValidators ()
+        let jsValidators = validators |> Seq.map getValidator
+        let result = System.String.Join(",", jsValidators)
+        sprintf "[%s]" result
 
 
     member this.GetCompiledModule(typ:string) =
@@ -51,6 +75,12 @@ type FScriptController() =
 
     member this.GetRequiredScripts() =
         base.Content(getRequiredScripts this.HttpContext.Cache, "application/x-javascript")
+
+    member this.GetAllValidators() =
+        let script = sprintf "$(document).ready(function(){ FormValidator.currentValidators = function () { return %s } })" (getValidators ())
+        
+        base.Content(script, "application/x-javascript")
+        
         
         
 
