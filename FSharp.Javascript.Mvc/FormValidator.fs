@@ -137,6 +137,13 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
                     error prop "Invalid Integer option"
                 else
                     setValue (prop, parsed)
+
+            | x when (x.Contains("Decimal") || x.Contains("Double") || x.Contains("Single")) && x.Contains("option") ->
+                let parsed = System.Decimal.TryParse2(value)
+                if parsed.IsNone then
+                    error prop "Invalid Decimal"
+                else
+                    setValue (prop, parsed.Value)
                     
             | "DateTime" -> 
                 let parsed = System.DateTime.TryParse2(value)
