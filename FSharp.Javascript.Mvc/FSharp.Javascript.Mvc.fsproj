@@ -50,6 +50,7 @@
     <EmbeddedResource Include="FSharp.Javascript.Validation.Utils.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <Compile Include="Fakes.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Javascript">

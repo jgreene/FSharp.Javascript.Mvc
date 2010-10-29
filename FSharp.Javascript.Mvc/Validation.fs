@@ -1,4 +1,4 @@
-﻿module FSharp.Javascript.Mvc.Validation
+﻿namespace FSharp.Javascript.Mvc
 
 open System
 open System.Web.Mvc
@@ -9,12 +9,12 @@ open Microsoft.FSharp.Linq.QuotationEvaluation
 open FormValidator
 
 type IValidator =
-    abstract typ : Type;
-    abstract errorField : string
-    abstract properties : (string * string) list;
-    abstract expr : Microsoft.FSharp.Quotations.Expr
-    abstract javascript : string;
-    abstract validate : obj -> string option
+        abstract typ : Type;
+        abstract errorField : string
+        abstract properties : (string * string) list;
+        abstract expr : Microsoft.FSharp.Quotations.Expr
+        abstract javascript : string;
+        abstract validate : obj -> string option
 
 type Validator<'a>(errorField, properties, expr: Microsoft.FSharp.Quotations.Expr<'a -> string option>) =
     let validator = expr.Compile()()
@@ -31,123 +31,143 @@ type Validator<'a>(errorField, properties, expr: Microsoft.FSharp.Quotations.Exp
             let model = model :?> 'a
             validator(model)
 
-let mutable private validators = new System.Collections.Concurrent.ConcurrentBag<IValidator>();
+type Validation() =
+    
+    static let mutable validators = new ResizeArray<IValidator>()
 
-let private getPropertyType (typ:System.Type) =
-    match typ with
-    | typ when typ.Name = "FSharpOption`1" -> 
-        let innerTyp = typ.GetGenericArguments().[0]
-        innerTyp.Name + " option"
-    | _ -> typ.Name
+    static member private getPropertyType (typ:System.Type) =
+        match typ with
+        | typ when typ.Name = "FSharpOption`1" -> 
+            let innerTyp = typ.GetGenericArguments().[0]
+            innerTyp.Name + " option"
+        | _ -> typ.Name
 
-let private getProperties<'a, 'b> (expression:Expr<'a -> 'b>) = 
-    let typ = typeof<'a>
+    static member private getProperties<'a, 'b> (expression:Expr<'a -> 'b>) = 
+        let typ = typeof<'a>
 
-    let rec loop expr acc =
-        match expr with
-        | Patterns.PropertyGet(e, p, xs) -> 
-            if e.IsSome then
-                let e' = loop e.Value acc
-                if p.DeclaringType = typ then
-                    (p.Name, getPropertyType p.PropertyType)::e'
+        let rec loop expr acc =
+            match expr with
+            | Patterns.PropertyGet(e, p, xs) -> 
+                if e.IsSome then
+                    let e' = loop e.Value acc
+                    if p.DeclaringType = typ then
+                        (p.Name, Validation.getPropertyType p.PropertyType)::e'
+                    else
+                        e'
                 else
-                    e'
-            else
-                if p.DeclaringType = typ then
-                    (p.Name, getPropertyType p.PropertyType)::acc
-                else
-                    acc
+                    if p.DeclaringType = typ then
+                        (p.Name, Validation.getPropertyType p.PropertyType)::acc
+                    else
+                        acc
         
-        | ShapeVar v -> acc
-        | ShapeLambda (var, expr) ->
-            loop expr acc
-        | ShapeCombination(ob, list) ->
-            let result = [for l in list do yield! loop l []]
-            result@acc
+            | ShapeVar v -> acc
+            | ShapeLambda (var, expr) ->
+                loop expr acc
+            | ShapeCombination(ob, list) ->
+                let result = [for l in list do yield! loop l []]
+                result@acc
 
-    let result = loop expression []
-    result
+        let result = loop expression []
+        result
+
+    static member private getPropertyName (prop:Expr) =
+        let rec loop expr acc =
+            match expr with
+            | Patterns.PropertyGet(e, p, xs) ->
+                let xs' = [for x in xs do yield! loop x []]
+                if e.IsSome then
+                    let e' = loop e.Value []
+                    p.Name::e'@xs'
+                else
+                    p.Name::xs'
+            | Patterns.Lambda(v, exp) ->
+                loop exp acc
+                
+
+            | _ -> acc
+            
+
+        String.Join(".", loop prop [])
                                                                                 
 
-let getValidators (typ:Type) =
-    validators |> Seq.filter (fun x -> x.typ = typ)
+    static member getValidators (typ:Type) =
+        validators |> Seq.filter (fun x -> x.typ = typ)
 
-let getAllValidators () =
-    validators
+    static member getAllValidators () = validators
 
 
-let registerValidator<'a>(expr:Expr<'a -> string option>) =
-    let properties = (getProperties expr) |> Seq.distinct |> Seq.toList
-    let propertyName = properties |> List.head |> fst
-    let validator = new Validator<'a>(propertyName, properties, expr) :> IValidator
+    static member registerValidator<'a>(expr:Expr<'a -> string option>, ?property:Expr) =
+        let properties = (Validation.getProperties expr) |> Seq.distinct |> Seq.toList
+        let propertyName = if property.IsSome then Validation.getPropertyName property.Value else properties |> List.head |> fst
+        let validator = new Validator<'a>(propertyName, properties, expr) :> IValidator
 
-    validators.Add(validator)
+        validators.Add(validator)
 
-let private getUrlInfo<'a, 'b, 'c>(expr:Expr<'a -> ('b  -> 'c)>) =
-    let getControllerName (name:string) =
-        if name.EndsWith("Controller", StringComparison.OrdinalIgnoreCase) then
-            name.Remove(name.Length - 10, 10)
-        else
-            name
+    static member private getUrlInfo<'a, 'b, 'c>(expr:Expr<'a -> ('b  -> 'c)>) (name:string) =
+        let getControllerName (name:string) =
+            if name.EndsWith("Controller", StringComparison.OrdinalIgnoreCase) then
+                name.Remove(name.Length - 10, 10)
+            else
+                name
 
-    let getArg arg =
-        match arg with
-        | Patterns.PropertyGet(a,b,c) -> b.Name
-        | _ -> failwith "Invalid argument"
+        let getArg arg =
+            match arg with
+            | Patterns.PropertyGet(a,b,c) -> b.Name
+            | _ -> failwith "Invalid argument"
              
-    match expr with
-    | Patterns.Lambda(v, Patterns.Lambda(v', Patterns.Call(Some(controller), m, args))) ->
-         let controllerName = getControllerName(v.Type.Name)
-         let actionname = m.Name
+        match expr with
+        | Patterns.Lambda(v, Patterns.Lambda(v', Patterns.Call(Some(controller), m, args))) ->
+             let controllerName = getControllerName(v.Type.Name)
+             let actionname = m.Name
 
-         let parameters = m.GetParameters()
+             let parameters = m.GetParameters()
          
-         let arguments = seq { for i in {0..(parameters.Length - 1) } -> (parameters.[i].Name, getArg(args.[i])) }
+             let arguments = seq { for i in {0..(parameters.Length - 1) } -> (parameters.[i].Name, getArg(args.[i])) }
          
 
-         let valueArgs = [for (a,b) in arguments -> Expr.NewTuple([Expr.Value(a);Expr.Value(b)])]
-
-         
-         let array = Expr.NewArray(typeof<Tuple<string,string>>, valueArgs)
-
+             let valueArgs = [for (a,b) in arguments -> Expr.NewTuple([Expr.Value(a);Expr.Value(b)])]
 
          
-         Expr.Cast<RemoteValidator>(Expr.NewRecord(typeof<RemoteValidator>, [Expr.Value("/test/ValidateEmail"); Expr.Value("Email"); array]))
+             let array = Expr.NewArray(typeof<Tuple<string,string>>, valueArgs)
+
+
+         
+             Expr.Cast<RemoteValidator>(Expr.NewRecord(typeof<RemoteValidator>, [Expr.Value("/test/ValidateEmail"); Expr.Value(name); array]))
             
-    | _ -> failwith "Invalid Remote Validator"
+        | _ -> failwith "Invalid Remote Validator"
 
 
 
-let registerRemoteValidator<'a, 'b, 'c>(expr:Expr<'a -> ('b  -> 'c)>)  =
+    static member registerRemoteValidator<'a, 'b, 'c>(expr:Expr<'a -> ('b  -> 'c)>, ?property:Expr)  =
     
 
-    let properties = (getProperties expr) |> Seq.distinct |> Seq.toList
-    let propertyName = properties |> List.head |> fst
+        let properties = (Validation.getProperties expr) |> Seq.distinct |> Seq.toList
+        let propertyName = if property.IsSome then Validation.getPropertyName property.Value else properties |> List.head |> fst
 
-    let urlInfo = getUrlInfo expr
+        let urlInfo = Validation.getUrlInfo expr propertyName
 
-    let expr = <@ fun (x:'a) -> getRemoteValidationResult x %urlInfo @>
+        let expr = <@ fun (x:'a) -> getRemoteValidationResult x %urlInfo @>
 
-    let validator = new Validator<'a>(propertyName, properties, expr) :> IValidator
+        let validator = new Validator<'a>(propertyName, properties, expr) :> IValidator
 
-    validators.Add(validator)
+        validators.Add(validator)
 
-let clearValidators () = validators <- new System.Collections.Concurrent.ConcurrentBag<IValidator>()
+    static member clearValidators () = validators.Clear()
 
 
-let getJavascriptForValidators (typ:Type) =
-    let validators = getValidators typ
+    static member getJavascriptForValidators (typ:Type) =
+        let validators = Validation.getValidators typ
     
-    let getProperties props =
-        let props = props |> List.map (fun (name,typ) -> "{ Item1 : \"" + name + "\", Item2 : \"" + typ + "\" }")
-        String.Join(",", props)
+        let getProperties props =
+            let props = props |> List.map (fun (name,typ) -> "{ Item1 : \"" + name + "\", Item2 : \"" + typ + "\" }")
+            String.Join(",", props)
 
-    let script = [for v in validators -> sprintf "{ ErrorField : '%s', FieldNames : [%s], Validator : %s, 
-    get_ErrorField : function () { return this.ErrorField; }, 
-    get_FieldNames : function(){ return this.FieldNames; }, 
-    get_Validator : function(){ return this.Validator; } }" v.errorField (getProperties v.properties) (v.javascript)]
-    let result = script |> String.concat ","
-    "[" + result + "]"
+        let script = [for v in validators -> sprintf "{ ErrorField : '%s', FieldNames : [%s], Validator : %s, 
+        get_ErrorField : function () { return this.ErrorField; }, 
+        get_FieldNames : function(){ return this.FieldNames; }, 
+        get_Validator : function(){ return this.Validator; } }" v.errorField (getProperties v.properties) (v.javascript)]
+        let result = script |> String.concat ","
+        "[" + result + "]"
 
 
 

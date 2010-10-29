@@ -119,7 +119,7 @@ FormValidator.getRemoteValidationResult = function (model) {
             url: remoteValidator.url,
             data: data,
             success: function (result) {
-                if (result.Value != null) {
+                if (result != null && result.Value != null) {
                     model.onCompleteValidation(remoteValidator.errorField)(result.Value)
                 }
             }

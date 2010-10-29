@@ -40,7 +40,7 @@ type FScriptController() =
             cache.Insert(key, result)
             result
 
-    let getValidator (validator:Validation.IValidator) =
+    let getValidator (validator:IValidator) =
         let getProperties props =
             let props = props |> List.map (fun (name,typ) -> "{ Item1 : \"" + name + "\", Item2 : \"" + typ + "\" }")
             System.String.Join(",", props)
