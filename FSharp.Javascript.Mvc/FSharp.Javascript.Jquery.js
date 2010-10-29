@@ -6,9 +6,9 @@ FSharp.Javascript.Jquery.jquery = window.jQuery
 jQuery.fn.value = jQuery.fn.val
 
 $.extend($.fn, {
-    fsharpBind: function (func) {
+    fsharpBind: function (eventName) {
         var self = this;
-        return function (eventName) {
+        return function (func) {
             self.bind(eventName, func)
         }
     }

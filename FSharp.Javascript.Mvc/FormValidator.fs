@@ -188,7 +188,7 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
                     let inputName = getInputName field
                     let input = form.find(inputName)
 
-                    input.fsharpBind("FSharpValidate", 
+                    input.bind("FSharpValidate", 
                         (fun () -> 
                             let model = getFormModel formValidator (fun field error ->
                                                                     addError field error

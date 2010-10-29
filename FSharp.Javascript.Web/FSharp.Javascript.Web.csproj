@@ -73,7 +73,7 @@
     <Content Include="Scripts\fsharp\FSharp.Javascript.Validation.js" />
     <Content Include="Views\Shared\EditorTemplates\OptionDateTime.ascx" />
     <Content Include="Views\Test\FirstTestModel.aspx" />
-    <Content Include="Views\Test\Index.aspx" />
+    <Content Include="Views\Home\Index.aspx" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

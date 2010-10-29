@@ -70,8 +70,8 @@ var getObjectFromPrefix = function (obj, prefix) {
 }
 
 //onCompleteValidation is a 
-FormValidator.getFormModel = function (onCompleteValidation) {
-    return function (formValidator) {
+FormValidator.getFormModel = function (formValidator) {
+    return function (onCompleteValidation) {
         var form = $('#' + formValidator.Form)
         var model = form.serializeObject()
 
@@ -88,22 +88,22 @@ FormValidator.getFormModel = function (onCompleteValidation) {
     }
 }
 
-FormValidator.getValueFromModel = function (property) {
-    return function (model) {
+FormValidator.getValueFromModel = function (model) {
+    return function (property) {
         return model[property];
     }
 }
 
-FormValidator.setValueOnModel = function (value) {
+FormValidator.setValueOnModel = function (model) {
     return function (property) {
-        return function (model) {
+        return function (value) {
             model[property] = value;
         }
     }
 }
 
-FormValidator.getRemoteValidationResult = function (remoteValidator) {
-    return function (model) {
+FormValidator.getRemoteValidationResult = function (model) {
+    return function (remoteValidator) {
         var data = {}
         $.each(remoteValidator.arguments, function () {
             var arg = this;
@@ -124,24 +124,6 @@ FormValidator.getRemoteValidationResult = function (remoteValidator) {
                 }
             }
         });
-        //        var result = $.ajax({
-        //            global: false,
-        //            async: false,
-        //            type: 'POST',
-        //            dataType: 'json',
-        //            url: remoteValidator.url,
-        //            data: data,
-        //            complete: function (result) {
-
-        //            }
-        //        }).responseText;
-
-        //        result = $.parseJSON(result);
-
-
-        //        if (result.Value != null) {
-        //            return new Microsoft.FSharp.Core.FSharpOption.Some(result.Value);
-        //        }
 
         return new Microsoft.FSharp.Core.FSharpOption.None();
     }

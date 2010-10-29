@@ -31,4 +31,10 @@ type TestController() =
         else
             base.Json(Some("Invalid Email"))
 
+
+type HomeController() =
+    inherit Controller()
+
+    member this.Index() = base.View()
+
         
