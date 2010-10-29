@@ -43,14 +43,13 @@
     <Compile Include="RecordBinder.fs" />
     <Compile Include="Setup.fs" />
     <Compile Include="FScriptController.fs" />
+    <EmbeddedResource Include="FSharp.Javascript.js" />
+    <EmbeddedResource Include="FSharp.Javascript.Library.js" />
+    <EmbeddedResource Include="FSharp.Javascript.Dom.js" />
+    <EmbeddedResource Include="FSharp.Javascript.Jquery.js" />
     <EmbeddedResource Include="FSharp.Javascript.Validation.Utils.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <Content Include="FSharp.Javascript.Validation.js" />
-    <EmbeddedResource Include="FSharp.Javascript.Dom.js" />
-    <EmbeddedResource Include="FSharp.Javascript.Jquery.js" />
-    <EmbeddedResource Include="FSharp.Javascript.js" />
-    <EmbeddedResource Include="FSharp.Javascript.Library.js" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Javascript">

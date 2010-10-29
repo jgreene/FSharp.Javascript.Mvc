@@ -89,7 +89,8 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
             if errs.IsNone then
                 errorElement.hide() |> ignore
             else
-                let errorMessage = errs.Value |> List.fold (fun acc next -> next + "<br/>" + acc) ""
+                let errorMessage = System.String.Join("<br/>", errs.Value)
+                //let errorMessage = errs.Value |> List.fold (fun acc next -> next + "<br/>" + acc) ""
                 errorElement.html(errorMessage).show() |> ignore
         else
             errorElement.hide() |> ignore

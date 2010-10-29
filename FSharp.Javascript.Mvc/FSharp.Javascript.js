@@ -22,7 +22,7 @@ Microsoft.FSharp.Core.Operators = {
             if (x.op_Addition) {
                 return x.op_Addition(y)
             }
-            return y + x;
+            return x + y;
         }
     },
 
@@ -31,7 +31,7 @@ Microsoft.FSharp.Core.Operators = {
             if (x.op_Subtraction) {
                 return x.op_Subtraction(y)
             }
-            return y - x;
+            return x - y;
         }
     },
 
@@ -41,7 +41,7 @@ Microsoft.FSharp.Core.Operators = {
                 return x.op_Multiply(y);
             }
 
-            return y * x;
+            return x * y;
         }
     },
 
@@ -51,7 +51,7 @@ Microsoft.FSharp.Core.Operators = {
                 return x.op_Division(y);
             }
 
-            return y / x;
+            return x / y;
         }
     },
 
@@ -61,7 +61,7 @@ Microsoft.FSharp.Core.Operators = {
                 return x.op_LessThanOrEqual(y)
             }
 
-            return y <= x;
+            return x <= y;
         }
     },
 
@@ -71,7 +71,7 @@ Microsoft.FSharp.Core.Operators = {
                 return x.op_LessThan(y)
             }
 
-            return y < x;
+            return x < y;
         }
     },
 
@@ -81,7 +81,7 @@ Microsoft.FSharp.Core.Operators = {
                 return x.op_GreaterThan(y)
             }
 
-            return y > x;
+            return x > y;
         }
     },
 
@@ -90,13 +90,13 @@ Microsoft.FSharp.Core.Operators = {
             if (x.op_GreaterThanOrEqual) {
                 return x.op_GreaterThanOrEqual(y)
             }
-            return y >= x;
+            return x >= y;
         }
     },
 
     op_Inequality: function (x) {
         return function (y) {
-            return Microsoft.FSharp.Core.Operators.op_Equality(y)(x) == false;
+            return Microsoft.FSharp.Core.Operators.op_Equality(x)(y) == false;
         }
     },
 
@@ -146,8 +146,8 @@ Microsoft.FSharp.Core.Operators = {
         }
     },
 
-    op_PipeRight: function (func) {
-        return function (item) {
+    op_PipeRight: function (item) {
+        return function (func) {
             return func(item)
         }
     },
@@ -159,8 +159,8 @@ Microsoft.FSharp.Core.Operators = {
     Fst: function (tup) { return tup.Item1; },
     Snd: function (tup) { return tup.Item2; },
 
-    op_Range: function (end) {
-        return function (start) {
+    op_Range: function (start) {
+        return function (end) {
             return new Range(start, end)
         }
     },
@@ -194,8 +194,8 @@ Microsoft.FSharp.Core.Operators = {
         return new Microsoft.FSharp.Core.Operators.Reference(x);
     },
 
-    op_ColonEquals: function (x) {
-        return function (item) {
+    op_ColonEquals: function (item) {
+        return function (x) {
             item.Value = x;
         }
     },
@@ -274,41 +274,10 @@ Range.prototype.read = function () {
         return false
 }
 
-function Map(func, source) {
-    this.func = func
-    this.source = source
-}
-
-Map.prototype.get = function () {
-    return this.func(this.source.get())
-}
-
-Map.prototype.read = function () {
-    return this.source.read()
-}
-
-function Filter(func, source) {
-    this.source = source
-    this.func = func
-}
-
-Filter.prototype.get = function () {
-    return this.source.get()
-}
-
-Filter.prototype.read = function () {
-    if (!this.source.read())
-        return false
-
-    if (this.func(this.source.get()))
-        return true
-
-    return this.read()
-}
 
 Microsoft.FSharp.Collections.SeqModule = {
-    Iterate: function (source) {
-        return function (func) {
+    Iterate: function (func) {
+        return function (source) {
             while (source.read()) {
                 func(source.get())
             }
@@ -319,15 +288,29 @@ Microsoft.FSharp.Collections.SeqModule = {
         return func();
     },
 
-    Map: function (a) {
-        return function (b) {
-            return new Map(b, a)
+    Map: function (func) {
+        return function (source) {
+            var array = []
+            while(source.read()){
+                var item = source.get();
+                array.push(func(item))
+            }
+
+            return array
         }
     },
 
-    Filter: function (a) {
-        return function (b) {
-            return new Filter(b, a)
+    Filter: function (func) {
+        return function (source) {
+            var array = []
+
+            while(source.read()){
+                var item = source.get();
+                if(func(item))
+                    array.push(item)
+            }
+
+            return array
         }
     },
 
@@ -338,9 +321,9 @@ Microsoft.FSharp.Collections.SeqModule = {
         return arr
     },
 
-    Collect: function (a) {
-        return function (b) {
-            return new Concat(new Map(b, a))
+    Collect: function (func) {
+        return function (list) {
+            return new Concat(Microsoft.FSharp.Collections.SeqModule.Map(func)(list))
         }
     },
 
@@ -351,11 +334,11 @@ Microsoft.FSharp.Collections.SeqModule = {
             list = new Microsoft.FSharp.Collections.FSharpList.Cons(list, temp);
         }
 
-        return list;
+        return Microsoft.FSharp.Collections.ListModule.Reverse(list);
     },
 
-    Exists: function (seq) {
-        return function (func) {
+    Exists: function (func) {
+        return function (seq) {
             var result = false;
 
             while (seq.read()) {
@@ -368,7 +351,20 @@ Microsoft.FSharp.Collections.SeqModule = {
 
             return result;
         }
-    }
+    },
+
+    Fold: function (func) {
+        return function (acc) {
+            return function (source) {
+                while (source.read()) {
+                    var next = source.get()
+                    acc = func(acc)(next)
+                }
+
+                return acc
+            }
+        }
+    },
 
 }
 
@@ -452,22 +448,12 @@ Array.prototype.get_Length = function () {
 registerNamespace('Microsoft.FSharp.Collections');
 
 Microsoft.FSharp.Collections.ArrayModule = {
-    Fold: function (source) {
-        return function (acc) {
-            return function (func) {
-                //list = ListModule.Reverse(list)
-                while (source.read()) {
-                    var next = source.get()
-                    acc = func(acc)(next)
-                }
-
-                return acc
-            }
-        }
+    Fold: function (func) {
+        return Microsoft.FSharp.Collections.SeqModule.Fold(func)
     },
 
-    Map: function (source) {
-        return function (func) {
+    Map: function (func) {
+        return function (source) {
             var newArr = []
             while (source.read()) {
                 var item = source.get()
@@ -479,8 +465,8 @@ Microsoft.FSharp.Collections.ArrayModule = {
         }
     },
 
-    Iterate: function (source) {
-        return function (func) {
+    Iterate: function (func) {
+        return function (source) {
             while (source.read()) {
                 var item = source.get()
                 func(item)
@@ -488,8 +474,8 @@ Microsoft.FSharp.Collections.ArrayModule = {
         }
     },
 
-    Filter: function (source) {
-        return function (func) {
+    Filter: function (func) {
+        return function (source) {
             var newArr = []
             while (source.read()) {
                 var item = source.get()
@@ -571,10 +557,10 @@ Microsoft.FSharp.Collections.FSharpList = {
 
         this.read = function () {
             if (this.ReadState == null)
-                this.ReadState = this.Length
+                this.ReadState = -1
 
-            this.ReadState--;
-            if (this.ReadState < 0) {
+            this.ReadState++;
+            if (this.ReadState >= this.Length) {
                 this.ReadState = null
                 return false;
             }
@@ -592,22 +578,18 @@ Microsoft.FSharp.Collections.FSharpList = {
 
 Microsoft.FSharp.Collections.ListModule = {
     Reverse: function (sequence) {
-        var array = [];
-        while (sequence.read()) {
-            var temp = sequence.get();
-            array.push(temp);
-        }
 
         var list = new Microsoft.FSharp.Collections.FSharpList.Empty();
-        for (var i = array.length - 1; i >= 0; i--) {
-            list = new Microsoft.FSharp.Collections.FSharpList.Cons(list, array[i])
+
+        while(sequence.read()){
+            list = new Microsoft.FSharp.Collections.FSharpList.Cons(list, sequence.get())
         }
 
         return list;
     },
 
-    Exists: function (list) {
-        return function (func) {
+    Exists: function (func) {
+        return function (list) {
             var result = false;
             while (list.read()) {
                 var item = list.get()
@@ -621,10 +603,9 @@ Microsoft.FSharp.Collections.ListModule = {
         }
     },
 
-    Fold: function (list) {
+    Fold: function (func) {
         return function (acc) {
-            return function (func) {
-                list = Microsoft.FSharp.Collections.ListModule.Reverse(list);
+            return function (list) {
                 while (list.read()) {
                     var next = list.get();
                     acc = func(acc)(next);
@@ -678,11 +659,8 @@ Microsoft.FSharp.Collections.FSharpMap = {
             return false;
         };
 
-        this.Add = function (value) {
-            var self = this
-            return function (key) {
-                return Microsoft.FSharp.Collections.MapModule.Add(self)(value)(key);
-            }
+        this.Add = function (value, key) {
+            return Microsoft.FSharp.Collections.MapModule.Add(key)(value)(this);
         };
 
         this.Remove = function (key) {
@@ -729,11 +707,8 @@ Microsoft.FSharp.Collections.FSharpMap = {
             return this.Tail
         };
 
-        this.Add = function (value) {
-            var self = this
-            return function (key) {
-                return Microsoft.FSharp.Collections.MapModule.Add(self)(value)(key);
-            }
+        this.Add = function (key, value) {
+            return Microsoft.FSharp.Collections.MapModule.Add(key)(value)(this);
         };
 
         this.Remove = function (key) {
@@ -748,12 +723,12 @@ Microsoft.FSharp.Collections.FSharpMap = {
             return result;
         };
 
-        this.read = function () {
+       this.read = function () {
             if (this.ReadState == null)
-                this.ReadState = this.Count
+                this.ReadState = -1
 
-            this.ReadState--;
-            if (this.ReadState < 0) {
+            this.ReadState++;
+            if (this.ReadState >= this.Count) {
                 this.ReadState = null
                 return false;
             }
@@ -766,8 +741,8 @@ Microsoft.FSharp.Collections.FSharpMap = {
             return this.get_Item(this.ReadState)
         };
 
-        this.ContainsKey = ContainsKey = function (key) {
-            return Microsoft.FSharp.Collections.MapModule.ContainsKey(this)(key)
+        this.ContainsKey = function (key) {
+            return Microsoft.FSharp.Collections.MapModule.ContainsKey(key)(this)
         }
     }
 
@@ -777,17 +752,17 @@ Microsoft.FSharp.Collections.MapModule = {
     Empty : function () {
         return new Microsoft.FSharp.Collections.FSharpMap.Empty();
     },
-    Add : function (source) {
+    Add : function (key) {
         return function (value) {
-            return function (key) {
+            return function (source) {
                 var item = { key: key, value: value }
                 return new Microsoft.FSharp.Collections.FSharpMap.Cons(source, item)
             }
         }
     },
 
-    Find : function (source) {
-        return function (key) {
+    Find : function (key) {
+        return function (source) {
             var result = null;
             while (source.read()) {
                 var item = source.get()
@@ -800,8 +775,8 @@ Microsoft.FSharp.Collections.MapModule = {
         }
     },
 
-    TryFind : function (source) {
-        return function (key) {
+    TryFind : function (key) {
+        return function (source) {
             var result = new Microsoft.FSharp.Core.FSharpOption.None();
             while (source.read()) {
                 var item = source.get()
@@ -814,8 +789,8 @@ Microsoft.FSharp.Collections.MapModule = {
         }
     },
 
-    ContainsKey : function (source) {
-        return function (key) {
+    ContainsKey : function (key) {
+        return function (source) {
             var result = false;
             while (source.read()) {
                 var item = source.get()
@@ -965,4 +940,16 @@ System.DateTime.MinValue = new System.DateTime();
 
 String.prototype.Contains = function (x) {
     return this.indexOf(x) != -1
+}
+
+System.String = {
+    Join: function (seperator, source) {
+        var result = Microsoft.FSharp.Collections.SeqModule.Fold(function (acc) {
+            return function(next){
+                return acc + next + seperator
+            }
+        })("")(source);
+
+        return result.slice(0, result.length - (seperator.length))
+    }
 }
