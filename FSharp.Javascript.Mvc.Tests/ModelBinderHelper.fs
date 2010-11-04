@@ -22,7 +22,20 @@ let getValueProvider (input:seq<(string * string)>) =
     let form = getForm input
     new NameValueCollectionValueProvider(form, null)
 
+type TestControllerFactory() =
+    inherit System.Web.Mvc.DefaultControllerFactory()
+
+    override this.GetControllerInstance(rc, typ:System.Type) =
+        let cont = System.Activator.CreateInstance(typ) :?> ControllerBase
+        cont.ControllerContext <- new ControllerContext(rc, cont)
+        cont :> IController
+
+
+
 let bindModel<'a> (input:seq<(string * string)>) =
+    System.Web.Mvc.ControllerBuilder.Current.SetControllerFactory(new TestControllerFactory())
+    System.Web.Routing.RouteTable.Routes.Clear()
+    FSharp.Javascript.Web.MvcApplication.RegisterRoutes(System.Web.Routing.RouteTable.Routes)
     Validation.clearValidators()
     Validators.setup()
     Setup.initialize()

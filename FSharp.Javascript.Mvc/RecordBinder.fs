@@ -43,89 +43,92 @@ type RecordDefaultModelBinder() =
 
     override this.BindModel(cc,bc) =
         
-        if isrec bc.ModelType then
+        let result = 
+            if isrec bc.ModelType then
 
-            let bc = 
-                if String.IsNullOrEmpty(bc.ModelName) = false && (bc.ValueProvider.ContainsPrefix(bc.ModelName)) = false && bc.FallbackToEmptyPrefix then
-                    let newBc = new ModelBindingContext()
-                    newBc.ModelMetadata <- bc.ModelMetadata
-                    newBc.ModelState <- bc.ModelState
-                    newBc.PropertyFilter <- bc.PropertyFilter
-                    newBc.ValueProvider <- bc.ValueProvider
+                let bc = 
+                    if String.IsNullOrEmpty(bc.ModelName) = false && (bc.ValueProvider.ContainsPrefix(bc.ModelName)) = false && bc.FallbackToEmptyPrefix then
+                        let newBc = new ModelBindingContext()
+                        newBc.ModelMetadata <- bc.ModelMetadata
+                        newBc.ModelState <- bc.ModelState
+                        newBc.PropertyFilter <- bc.PropertyFilter
+                        newBc.ValueProvider <- bc.ValueProvider
 
-                    newBc
-                else
-                    bc
+                        newBc
+                    else
+                        bc
 
 
-            let fields = (FSharpType.GetRecordFields bc.ModelType) |> Array.map (fun f -> (f, f.PropertyType))
-            let fieldTypes = fields |> Array.map (fun (f,t) -> t)
+                let fields = (FSharpType.GetRecordFields bc.ModelType) |> Array.map (fun f -> (f, f.PropertyType))
+                let fieldTypes = fields |> Array.map (fun (f,t) -> t)
 
-            let fieldValues = fields |> Array.map (fun (f,t) ->
-                                                        let fullPropertyKey = createSubPropertyName bc.ModelName f.Name
-                                                        let defaultValue = getDefaultValue f.PropertyType
-                                                        if (bc.ValueProvider.ContainsPrefix fullPropertyKey) = false then
-                                                            defaultValue
-                                                        else
-                                                            let binder = ModelBinders.Binders.GetBinder(t)
-                                                            let propertyMetadata = bc.PropertyMetadata.[f.Name]
-                                                            propertyMetadata.Model <- defaultValue
+                let fieldValues = fields |> Array.map (fun (f,t) ->
+                                                            let fullPropertyKey = createSubPropertyName bc.ModelName f.Name
+                                                            let defaultValue = getDefaultValue f.PropertyType
+                                                            if (bc.ValueProvider.ContainsPrefix fullPropertyKey) = false then
+                                                                defaultValue
+                                                            else
+                                                                let binder = ModelBinders.Binders.GetBinder(t)
+                                                                let propertyMetadata = bc.PropertyMetadata.[f.Name]
+                                                                propertyMetadata.Model <- defaultValue
                                                             
-                                                            let innerBindingContext = new ModelBindingContext()
-                                                            innerBindingContext.ModelMetadata <- propertyMetadata
-                                                            innerBindingContext.ModelName <- fullPropertyKey
-                                                            innerBindingContext.ModelState <- bc.ModelState
-                                                            innerBindingContext.ValueProvider <- bc.ValueProvider
+                                                                let innerBindingContext = new ModelBindingContext()
+                                                                innerBindingContext.ModelMetadata <- propertyMetadata
+                                                                innerBindingContext.ModelName <- fullPropertyKey
+                                                                innerBindingContext.ModelState <- bc.ModelState
+                                                                innerBindingContext.ValueProvider <- bc.ValueProvider
 
-                                                            let newPropertyValue = binder.BindModel(cc,innerBindingContext)
-                                                            propertyMetadata.Model <- newPropertyValue
+                                                                let newPropertyValue = binder.BindModel(cc,innerBindingContext)
+                                                                propertyMetadata.Model <- newPropertyValue
 
-                                                            let modelState = bc.ModelState.[fullPropertyKey]
+                                                                let modelState = bc.ModelState.[fullPropertyKey]
                                                             
-                                                            if modelState <> null then
-                                                                modelState.Errors
-                                                                |> Seq.filter (fun err -> (String.IsNullOrEmpty(err.ErrorMessage)) && err.Exception <> null)
-                                                                |> Seq.iter (fun err -> if err.Exception <> null then
-                                                                                            match err.Exception with
-                                                                                            | :? FormatException ->
-                                                                                                let displayName = propertyMetadata.GetDisplayName()
-                                                                                                let errorMessageTemplate = getValueInvalidResource cc
-                                                                                                let errorMessage = String.Format(CultureInfo.CurrentCulture, errorMessageTemplate, modelState.Value.AttemptedValue, displayName)
-                                                                                                modelState.Errors.Remove(err) |> ignore
-                                                                                                modelState.Errors.Add(errorMessage) |> ignore
-                                                                                            | _ -> ()
-                                                                                ) |> ignore
+                                                                if modelState <> null then
+                                                                    modelState.Errors
+                                                                    |> Seq.filter (fun err -> (String.IsNullOrEmpty(err.ErrorMessage)) && err.Exception <> null)
+                                                                    |> Seq.iter (fun err -> if err.Exception <> null then
+                                                                                                match err.Exception with
+                                                                                                | :? FormatException ->
+                                                                                                    let displayName = propertyMetadata.GetDisplayName()
+                                                                                                    let errorMessageTemplate = getValueInvalidResource cc
+                                                                                                    let errorMessage = String.Format(CultureInfo.CurrentCulture, errorMessageTemplate, modelState.Value.AttemptedValue, displayName)
+                                                                                                    modelState.Errors.Remove(err) |> ignore
+                                                                                                    modelState.Errors.Add(errorMessage) |> ignore
+                                                                                                | _ -> ()
+                                                                                    ) |> ignore
 
-                                                            propertyMetadata.Model
+                                                                propertyMetadata.Model
                                                                                              
-                                                    )
+                                                        )
 
-            let constr = bc.ModelType.GetConstructor(fieldTypes)
-            let result = constr.Invoke(fieldValues)
-            
+                let constr = bc.ModelType.GetConstructor(fieldTypes)
+                let result = constr.Invoke(fieldValues)
+                result
 
-            let bindAttr = base.GetTypeDescriptor(cc,bc).GetAttributes().[typeof<BindAttribute>] :?> BindAttribute
-            let propertyFilter =
-                if bindAttr <> null then
-                    new System.Predicate<string>(fun propertyName -> bindAttr.IsPropertyAllowed(propertyName) && bc.PropertyFilter.Invoke(propertyName))
-                else
-                    bc.PropertyFilter
-
-            let newBc = new ModelBindingContext()
-            newBc.ModelMetadata <- ModelMetadataProviders.Current.GetMetadataForType( new Func<obj>(fun () -> result), bc.ModelType)
-            newBc.ModelName <- bc.ModelName
-            newBc.ModelState <- bc.ModelState
-            newBc.PropertyFilter <- bc.PropertyFilter
-            newBc.ValueProvider <- bc.ValueProvider
                 
 
-            let bc = newBc
-            this.OnModelUpdated(cc, bc)
+            else
+                base.BindModel(cc,bc)
 
-            result
+        let bindAttr = base.GetTypeDescriptor(cc,bc).GetAttributes().[typeof<BindAttribute>] :?> BindAttribute
+        let propertyFilter =
+            if bindAttr <> null then
+                new System.Predicate<string>(fun propertyName -> bindAttr.IsPropertyAllowed(propertyName) && bc.PropertyFilter.Invoke(propertyName))
+            else
+                bc.PropertyFilter
 
-        else
-            base.BindModel(cc,bc)
+        let newBc = new ModelBindingContext()
+        newBc.ModelMetadata <- ModelMetadataProviders.Current.GetMetadataForType( new Func<obj>(fun () -> result), bc.ModelType)
+        newBc.ModelName <- bc.ModelName
+        newBc.ModelState <- bc.ModelState
+        newBc.PropertyFilter <- bc.PropertyFilter
+        newBc.ValueProvider <- bc.ValueProvider
+                
+
+        let bc = newBc
+        this.OnModelUpdated(cc, bc)
+
+        result
 
     override this.OnModelUpdated(cc,bc) =
         let startedValid = new System.Collections.Generic.Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)

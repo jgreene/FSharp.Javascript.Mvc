@@ -1,6 +1,7 @@
 ﻿namespace FSharp.Javascript.Web
 
 open System.Web.Mvc
+open FSharp.Javascript.Mvc.Extensions
 
 open Models
 
@@ -27,9 +28,9 @@ type TestController() =
 
     member this.ValidateEmail (id:int, email:string) =
         if email = "test@test.com" then
-            base.Json(None)
+            base.Validate(None)
         else
-            base.Json(Some("Invalid Email"))
+            base.Validate(Some "Invalid Email")
 
 
 type HomeController() =

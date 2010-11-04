@@ -7,6 +7,8 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
 open Microsoft.FSharp.Linq.QuotationEvaluation
 open FormValidator
+open FSharp.Javascript.Mvc.Fakes
+open FSharp.Javascript.Mvc.Utilities
 
 type IValidator =
         abstract typ : Type;
@@ -117,8 +119,11 @@ type Validation() =
              
         match expr with
         | Patterns.Lambda(v, Patterns.Lambda(v', Patterns.Call(Some(controller), m, args))) ->
-             let controllerName = getControllerName(v.Type.Name)
+             let controllerName = getControllerName(v'.Type.Name)
              let actionname = m.Name
+
+             let url = getUrl controllerName actionname
+
 
              let parameters = m.GetParameters()
          
@@ -132,7 +137,7 @@ type Validation() =
 
 
          
-             Expr.Cast<RemoteValidator>(Expr.NewRecord(typeof<RemoteValidator>, [Expr.Value("/test/ValidateEmail"); Expr.Value(name); array]))
+             Expr.Cast<RemoteValidator>(Expr.NewRecord(typeof<RemoteValidator>, [Expr.Value(url); Expr.Value(name); array]))
             
         | _ -> failwith "Invalid Remote Validator"
 
@@ -155,19 +160,19 @@ type Validation() =
     static member clearValidators () = validators.Clear()
 
 
-    static member getJavascriptForValidators (typ:Type) =
-        let validators = Validation.getValidators typ
-    
-        let getProperties props =
-            let props = props |> List.map (fun (name,typ) -> "{ Item1 : \"" + name + "\", Item2 : \"" + typ + "\" }")
-            String.Join(",", props)
-
-        let script = [for v in validators -> sprintf "{ ErrorField : '%s', FieldNames : [%s], Validator : %s, 
-        get_ErrorField : function () { return this.ErrorField; }, 
-        get_FieldNames : function(){ return this.FieldNames; }, 
-        get_Validator : function(){ return this.Validator; } }" v.errorField (getProperties v.properties) (v.javascript)]
-        let result = script |> String.concat ","
-        "[" + result + "]"
+//    static member getJavascriptForValidators (typ:Type) =
+//        let validators = Validation.getValidators typ
+//    
+//        let getProperties props =
+//            let props = props |> List.map (fun (name,typ) -> "{ Item1 : \"" + name + "\", Item2 : \"" + typ + "\" }")
+//            String.Join(",", props)
+//
+//        let script = [for v in validators -> sprintf "{ ErrorField : '%s', FieldNames : [%s], Validator : %s, 
+//        get_ErrorField : function () { return this.ErrorField; }, 
+//        get_FieldNames : function(){ return this.FieldNames; }, 
+//        get_Validator : function(){ return this.Validator; } }" v.errorField (getProperties v.properties) (v.javascript)]
+//        let result = script |> String.concat ","
+//        "[" + result + "]"
 
 
 

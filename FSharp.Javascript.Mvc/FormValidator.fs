@@ -1,9 +1,18 @@
 ﻿module FormValidator
 
+open System.Text
+open System.IO
+open System.Web.Mvc
+open System.Web.Routing
+open FSharp.Javascript.Mvc.Fakes
+
 open FSharp.Javascript.Dom
 open FSharp.Javascript.Jquery
 
 open FSharp.Javascript.Library
+
+open FSharp.Javascript.Mvc.Utilities
+
 
 type FormValidator<'a> = {
     Form : string
@@ -24,7 +33,61 @@ type RemoteValidator = {
     arguments : (string * string) array
 }
 
-let getRemoteValidationResult model (validator:RemoteValidator) = Some ""
+let currentUrl () =
+    let currentUrl = System.Web.HttpContext.Current.Request.Url
+    currentUrl.Scheme + "://" + currentUrl.Authority
+
+let getRemoteValidationResult<'a> (model:'a) (validator:RemoteValidator) = 
+    let typ = typeof<'a>
+
+    let args = validator.arguments |> Array.map (fun (a,b) -> 
+                                                    let prop = typ.GetProperty(b)
+                                                    (a, b, prop.GetValue(model, null)))
+
+    let qs = args |> Array.map (fun (a,b,v) -> a + "=" + v.ToString())
+
+    let queryString = System.String.Join("&", qs)
+
+    let sb = new StringBuilder()
+    let sw = new StringWriter(sb)
+
+    let url = (currentUrl ()) + validator.url + "?" + queryString
+    
+    let request = new System.Web.HttpRequest("/", url, "")
+    
+    let response = new System.Web.HttpResponse(sw)
+
+    
+
+//    for (a,b,v) in args do
+//        request.Form.Add(b, v.ToString())
+
+
+    let context = new System.Web.HttpContext(request, response)
+    let wrapper = new System.Web.HttpContextWrapper(context)
+    
+
+    let routes = System.Web.Routing.RouteTable.Routes
+    let routeData = routes.GetRouteData(wrapper)
+
+    
+
+    
+
+//    for (a,b,v) in args do
+//        if routeData.Values.ContainsKey(a) then
+//            routeData.Values.[a] <- v.ToString()
+//        else
+//            routeData.Values.Add(a, v.ToString())
+
+    
+
+    let stringResult = renderRouteToString wrapper routeData
+  
+
+    
+
+    Some ""
 
 //onCompleteValidation is a hack to have asynchronous remote validators
 let getFormModel<'a> (formValidator : FormValidator<'a>) (onCompleteValidation) = new obj() :?> 'a
