@@ -49,7 +49,7 @@ type CapturingResponseFilter(sink:Stream) =
 
     override this.CanRead with get() = true
     override this.CanSeek with get() = false
-    override this.CanWrite with get() = false
+    override this.CanWrite with get() = true
     override this.Length with get() = 0L
     override this.Position with get() = position and set(value) = position <- value
     override this.Seek(offset, direction) = 0L
@@ -66,28 +66,23 @@ type CapturingResponseFilter(sink:Stream) =
         mem.Write(buffer, 0, count)
 
     member this.GetContents(enc:System.Text.Encoding) =
-        let buffer = Array.empty<byte>
+        let buffer = Array.zeroCreate<byte> (int mem.Length)
         mem.Position <- 0L
         mem.Read(buffer, 0, buffer.Length) |> ignore
         enc.GetString(buffer, 0, buffer.Length)
 
-let capture (context:HttpContextBase) (renderer:System.Action) =
+let capture (context:HttpContextBase) (renderer:unit -> unit) =
     let resp = context.Response
-    if renderer = null then
-        ""
-    else
-        resp.Flush()
-        let originalFilter = resp.Filter
-        let innerFilter = new CapturingResponseFilter(resp.Filter)
-        resp.Filter <- innerFilter
-        renderer.Invoke()
-        resp.Flush()
-        let result = innerFilter.GetContents(resp.ContentEncoding)
-        
-        if originalFilter <> null then
-            resp.Filter <- originalFilter
+    resp.Flush()
+    let originalFilter = resp.Filter
+    let innerFilter = new CapturingResponseFilter(resp.Filter)
+    resp.Filter <- innerFilter
+    renderer ()
+    resp.Flush()
+    let result = innerFilter.GetContents(resp.ContentEncoding)
+    resp.Filter <- originalFilter
 
-        result
+    result
 
 type FakeIView() =
     interface IView with
@@ -98,8 +93,11 @@ type FakeIViewDataContainer() =
     interface IViewDataContainer with
         override this.ViewData with get() = viewData and set(value) = viewData <- value
 
+let getHtmlHelper () =
+    new HtmlHelper(new ViewContext(), FakeIViewDataContainer())
+
 let renderRouteToString (context:HttpContextBase) (routeData:RouteData) =
-    
+
     let controllerName = routeData.GetRequiredString("controller")
     let actionName = routeData.GetRequiredString("action")
 
@@ -112,21 +110,11 @@ let renderRouteToString (context:HttpContextBase) (routeData:RouteData) =
     let controllerContext = new ControllerContext(requestContext, controller)
     (controller).ControllerContext <- controllerContext
 
-    let viewData = new ViewDataDictionary()
-    let tempData = new TempDataDictionary()
-    let sb = new System.Text.StringBuilder()
-    let sw = new System.IO.StringWriter(sb)
-    let helper = new HtmlHelper(new ViewContext(controllerContext, new FakeIView(), viewData, tempData, sw), FakeIViewDataContainer())
+    let action = (fun () -> ActionInvoker.InvokeAction(controllerContext, actionName) |> ignore)
+
+    capture context action
 
 
-    ActionInvoker.InvokeAction(controllerContext, actionName) |> ignore
-
-    let reader = new StreamReader(context.Response.OutputStream)
-
-    reader.ReadToEnd()
-
-//    let action = new System.Action(fun () -> ActionInvoker.InvokeAction(controllerContext, actionName) |> ignore )
-//    capture context action
     
         
 

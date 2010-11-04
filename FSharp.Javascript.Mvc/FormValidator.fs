@@ -33,10 +33,6 @@ type RemoteValidator = {
     arguments : (string * string) array
 }
 
-let currentUrl () =
-    let currentUrl = System.Web.HttpContext.Current.Request.Url
-    currentUrl.Scheme + "://" + currentUrl.Authority
-
 let getRemoteValidationResult<'a> (model:'a) (validator:RemoteValidator) = 
     let typ = typeof<'a>
 
@@ -44,50 +40,25 @@ let getRemoteValidationResult<'a> (model:'a) (validator:RemoteValidator) =
                                                     let prop = typ.GetProperty(b)
                                                     (a, b, prop.GetValue(model, null)))
 
-    let qs = args |> Array.map (fun (a,b,v) -> a + "=" + v.ToString())
-
-    let queryString = System.String.Join("&", qs)
-
-    let sb = new StringBuilder()
-    let sw = new StringWriter(sb)
-
-    let url = (currentUrl ()) + validator.url + "?" + queryString
+    let context = new FakeHttpContext("~" + validator.url, "POST")
     
-    let request = new System.Web.HttpRequest("/", url, "")
-    
-    let response = new System.Web.HttpResponse(sw)
-
-    
-
-//    for (a,b,v) in args do
-//        request.Form.Add(b, v.ToString())
-
-
-    let context = new System.Web.HttpContext(request, response)
-    let wrapper = new System.Web.HttpContextWrapper(context)
-    
-
     let routes = System.Web.Routing.RouteTable.Routes
-    let routeData = routes.GetRouteData(wrapper)
-
+    let routeData = routes.GetRouteData(context)
     
 
+    for (a,b,v) in args do
+        if routeData.Values.ContainsKey(a) then
+            routeData.Values.[a] <- v
+        else
+            routeData.Values.Add(a, v)
+
+    let stringResult = renderRouteToString context routeData
     
-
-//    for (a,b,v) in args do
-//        if routeData.Values.ContainsKey(a) then
-//            routeData.Values.[a] <- v.ToString()
-//        else
-//            routeData.Values.Add(a, v.ToString())
-
-    
-
-    let stringResult = renderRouteToString wrapper routeData
-  
-
-    
-
-    Some ""
+    if stringResult.Contains("Value") = false then
+        None
+    else
+        let result = stringResult.Split(':').[1].Replace("\"", "").Replace("}", "")
+        Some result
 
 //onCompleteValidation is a hack to have asynchronous remote validators
 let getFormModel<'a> (formValidator : FormValidator<'a>) (onCompleteValidation) = new obj() :?> 'a

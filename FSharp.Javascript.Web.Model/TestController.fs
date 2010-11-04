@@ -28,9 +28,9 @@ type TestController() =
 
     member this.ValidateEmail (id:int, email:string) =
         if email = "test@test.com" then
-            base.Validate(None)
+            base.Json(None)
         else
-            base.Validate(Some "Invalid Email")
+            base.Json(Some "Invalid Email")
 
 
 type HomeController() =
