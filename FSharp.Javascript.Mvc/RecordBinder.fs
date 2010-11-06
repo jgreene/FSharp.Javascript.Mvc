@@ -42,22 +42,21 @@ type RecordDefaultModelBinder() =
     
 
     override this.BindModel(cc,bc) =
+
+        let bc = 
+            if String.IsNullOrEmpty(bc.ModelName) = false && (bc.ValueProvider.ContainsPrefix(bc.ModelName)) = false && bc.FallbackToEmptyPrefix then
+                let newBc = new ModelBindingContext()
+                newBc.ModelMetadata <- bc.ModelMetadata
+                newBc.ModelState <- bc.ModelState
+                newBc.PropertyFilter <- bc.PropertyFilter
+                newBc.ValueProvider <- bc.ValueProvider
+
+                newBc
+            else
+                bc
         
         let result = 
             if isrec bc.ModelType then
-
-                let bc = 
-                    if String.IsNullOrEmpty(bc.ModelName) = false && (bc.ValueProvider.ContainsPrefix(bc.ModelName)) = false && bc.FallbackToEmptyPrefix then
-                        let newBc = new ModelBindingContext()
-                        newBc.ModelMetadata <- bc.ModelMetadata
-                        newBc.ModelState <- bc.ModelState
-                        newBc.PropertyFilter <- bc.PropertyFilter
-                        newBc.ValueProvider <- bc.ValueProvider
-
-                        newBc
-                    else
-                        bc
-
 
                 let fields = (FSharpType.GetRecordFields bc.ModelType) |> Array.map (fun f -> (f, f.PropertyType))
                 let fieldTypes = fields |> Array.map (fun (f,t) -> t)

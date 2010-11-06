@@ -25,10 +25,9 @@ let getValueProvider (input:seq<(string * string)>) =
 type TestControllerFactory() =
     inherit System.Web.Mvc.DefaultControllerFactory()
 
-    override this.GetControllerInstance(rc, typ:System.Type) =
-        let cont = System.Activator.CreateInstance(typ) :?> ControllerBase
-        cont.ControllerContext <- new ControllerContext(rc, cont)
-        cont :> IController
+    override this.GetControllerType(rc, controllerName) =
+        let types = seq { for a in AppDomain.CurrentDomain.GetAssemblies() do yield! a.GetTypes() }
+        types |> Seq.find(fun x -> x.Name = controllerName + "Controller")
 
 
 

@@ -14,7 +14,7 @@
 
     <% Html.EnableClientValidation(); Html.EnableUnobtrusiveJavaScript(false); %>
 
-    <%= Html.ValidationSummary() %>
+    <%: Html.ValidationSummary() %>
 
     <%using (Html.BeginForm("FirstTestModelSubmit", "test")){ %>
         <label>IsSelected:</label>
