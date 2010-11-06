@@ -18,7 +18,7 @@ type FirstTestModelTests() =
         let result, 
             modelState = bindModel<FirstTestModel> ["Id", "5";
                                                     "Name", "";
-                                                    "IsSelected", "asdf";
+                                                    "IsSelected", "true";
                                                     "DateOfBirth", "10/06/2005";
                                                     "PickANumber", "11";
                                                     "Email",""]
@@ -26,8 +26,3 @@ type FirstTestModelTests() =
         
         Assert.True(result.DateOfBirth.IsSome)
         Assert.IsTrue(modelState.IsValid = false)
-        
-        
-
-
-

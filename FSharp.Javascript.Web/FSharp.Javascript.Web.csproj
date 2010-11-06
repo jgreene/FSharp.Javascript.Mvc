@@ -74,6 +74,7 @@
     <Content Include="Views\Shared\EditorTemplates\OptionDateTime.ascx" />
     <Content Include="Views\Test\FirstTestModel.aspx" />
     <Content Include="Views\Home\Index.aspx" />
+    <Content Include="Views\Test\FirstTestModelArray.aspx" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

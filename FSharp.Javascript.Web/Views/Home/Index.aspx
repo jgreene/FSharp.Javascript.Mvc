@@ -15,6 +15,9 @@
             <li>
                 <a href="/test/FirstTestModel">First Test Model</a>
             </li>
+            <li>
+                <a href="/test/FirstTestModelArray">First Test Model Array</a>
+            </li>
         </ul>
     </fieldset>
 

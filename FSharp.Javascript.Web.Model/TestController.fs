@@ -33,6 +33,21 @@ type TestController() =
             base.Validate(Some "Invalid Email")
 
 
+    member this.FirstTestModelArray() =
+        let first = { Id = 0; IsSelected = false; Name = ""; DateOfBirth = None; PickANumber = 1; Email =""}
+        let second = { first with Name = "blah"; }
+        let third = { first with DateOfBirth = Some System.DateTime.Now }
+
+        let model = [|first;second;third|]
+        base.View("FirstTestModelArray", model)
+
+    member this.FirstTestModelArraySubmit(model:FirstTestModel array) =
+        if base.ModelState.IsValid = false then
+            base.View("FirstTestModelArray", model)
+        else
+            base.View("Success")
+
+
 type HomeController() =
     inherit Controller()
 
