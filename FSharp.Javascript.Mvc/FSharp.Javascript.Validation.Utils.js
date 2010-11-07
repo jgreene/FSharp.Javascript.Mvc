@@ -1,6 +1,6 @@
-﻿$.fn.serializeObject = function () {
+﻿var getObjectFromArray = function (array) {
     var o = {};
-    var a = this.serializeArray();
+    var a = array;
 
     var setValue = function (obj, name, value) {
 
@@ -69,18 +69,39 @@ var getObjectFromPrefix = function (obj, prefix) {
     return tempObj;
 }
 
-//onCompleteValidation is a 
 FormValidator.getFormModel = function (formValidator) {
     return function (onCompleteValidation) {
         var form = $('#' + formValidator.Form)
-        var model = form.serializeObject()
+        var array = form.serializeArray()
 
-        var result = null
+        var filteredArray = (function () {
+            var arr = []
+            var startsWith = function (input, toMatch) {
+                return input.substr(0, toMatch.length) === toMatch
+            }
+            var removePrefix = function (input) {
+                var name = (function () {
+                    if (formValidator.Prefix == "")
+                        return input.name;
 
-        if (formValidator.Prefix == "")
-            result = model
-        else
-            result = getObjectFromPrefix(model, formValidator.Prefix)
+                    return input.name.substring((formValidator.Prefix.length + 1), input.name.length)
+
+                })();
+
+                return { name: name, value: input.value }
+
+            }
+            $.each(array, function () {
+                if (startsWith(this.name, formValidator.Prefix)) {
+                    var item = removePrefix(this);
+                    arr.push(item)
+                }
+            })
+
+            return arr;
+        })();
+
+        var result = getObjectFromArray(filteredArray);
 
         result.onCompleteValidation = onCompleteValidation
 

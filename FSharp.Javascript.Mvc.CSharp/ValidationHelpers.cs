@@ -19,21 +19,38 @@ get_Type : function(){{ return this.Type; }}
 }})
         }})
         </script>";
-        public static string FSharpValidation<TModel>(this HtmlHelper<TModel> helper)
+        public static MvcHtmlString FSharpValidation<TModel>(this HtmlHelper<TModel> helper)
         {
             Type type = typeof(TModel);
 
-            return string.Format(script, helper.ViewContext.FormContext.FormId, "", type.FullName);
+            return new MvcHtmlString(string.Format(script, helper.ViewContext.FormContext.FormId, "", type.FullName));
         }
 
-        public static string FSharpValidation<TModel, TProp>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TProp>> expression)
+        public static MvcHtmlString FSharpValidation<TModel, TProp>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TProp>> expression)
         {
             string expressionString = ExpressionHelper.GetExpressionText((LambdaExpression)expression);
             string fullHtmlFieldName = helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expressionString);
 
             var type = typeof(TProp);
 
-            return string.Format(script, helper.ViewContext.FormContext.FormId, fullHtmlFieldName, type.FullName);
+            return new MvcHtmlString(string.Format(script, helper.ViewContext.FormContext.FormId, fullHtmlFieldName, type.FullName));
+        }
+
+        const string OuterError = "<div id=\"{0}\" class=\"{1}\">{2}</div>";
+        const string InnerError = "<div>{0}</div>";
+        public static MvcHtmlString FSharpValidationMessageFor<TModel, TProp>(this HtmlHelper<TModel> helper, Expression<Func<TModel, TProp>> expression)
+        {
+            string expressionString = ExpressionHelper.GetExpressionText((LambdaExpression)expression);
+            string fullHtmlFieldName = helper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expressionString);
+
+            if (helper.ViewData.ModelState.ContainsKey(fullHtmlFieldName) == false)
+                return new MvcHtmlString(string.Format(OuterError, fullHtmlFieldName + "_validationMessage", "field-validation-valid", ""));
+
+            var state = helper.ViewData.ModelState[fullHtmlFieldName];
+            string errors = state.Errors.Aggregate(new StringBuilder(), (acc, error) => acc.Append(string.Format(InnerError, error.ErrorMessage))).ToString();
+
+            return new MvcHtmlString(string.Format(OuterError, fullHtmlFieldName + "_validationMessage", "field-validation-error", errors));
+
         }
     }
 }

@@ -20,36 +20,36 @@
         <label>IsSelected:</label>
         <%= Html.CheckBoxFor(a => a.IsSelected)%>
         <%--<input type="text" value="true" name="IsSelected" />--%>
-        <%= Html.ValidationMessageFor(a=>a.IsSelected) %>
+        <%= Html.FSharpValidationMessageFor(a => a.IsSelected)%>
         <br />
         <br />
         <label>Name:</label>
         <%= Html.TextBoxFor(a => a.Name) %>
-        <%= Html.ValidationMessageFor(a=>a.Name) %>
+        <%= Html.FSharpValidationMessageFor(a => a.Name)%>
         <br />
         <br />
 
         <label>Date Of Birth:</label>
         <%= Html.EditorFor(a => a.DateOfBirth, "OptionDateTime") %>
-        <%= Html.ValidationMessageFor(a => a.DateOfBirth)%>
+        <%= Html.FSharpValidationMessageFor(a => a.DateOfBirth)%>
         <br />
         <br />
 
         <label>PickANumber:</label>
         <%= Html.TextBoxFor(a => a.PickANumber) %>
-        <%= Html.ValidationMessageFor(a => a.PickANumber)%>
+        <%= Html.FSharpValidationMessageFor(a => a.PickANumber)%>
         <br />
         <br />
 
         <label>Id:</label>
         <%= Html.TextBoxFor(a => a.Id) %>
-        <%= Html.ValidationMessageFor(a => a.Id)%>
+        <%= Html.FSharpValidationMessageFor(a => a.Id)%>
         <br />
         <br />
 
         <label>Email:</label>
         <%= Html.TextBoxFor(a => a.Email)%>
-        <%= Html.ValidationMessageFor(a => a.Email)%>
+        <%= Html.FSharpValidationMessageFor(a => a.Email)%>
         <br />
         <br />
         

@@ -54,11 +54,11 @@ let getRemoteValidationResult<'a> (model:'a) (validator:RemoteValidator) =
 
     let stringResult = renderRouteToString context routeData
     
-    if stringResult.Contains("Value") = false then
-        None
-    else
+    if stringResult.Contains("Value") then
         let result = stringResult.Split(':').[1].Replace("\"", "").Replace("}", "")
         Some result
+    else
+        None
 
 //onCompleteValidation is a hack to have asynchronous remote validators
 let getFormModel<'a> (formValidator : FormValidator<'a>) (onCompleteValidation) = new obj() :?> 'a
@@ -81,14 +81,12 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
             "input[name='" + formValidator.Prefix + "." + fieldName + "']"
 
     let getElement (prop:string) =
-        if formValidator.Prefix = "" then
-            jquery("#" + prop)
-        else
-            jquery("#" + formValidator.Prefix + "." + prop)
+        let inputName = getInputName prop
+        form.find(inputName)
 
     let getErrorElement (elem:jquery) =
-        let id = elem.attr("id") + "_validationMessage"
-        jquery("#" + id)
+        let id = (elem.attr("name") + "_validationMessage")
+        form.find("div[id='" + id + "']")
 
     let errors = ref Map.empty<string,string list>
 
@@ -117,17 +115,27 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
     let displayErrors (property:string)  =
         let elem = getElement property
         let errorElement = getErrorElement elem
+
+        let hideErrors () =
+            elem.removeClass("input-validation-error") |> ignore
+            errorElement.addClass("field-validation-valid").removeClass("field-validation-error") |> ignore
+
+        let showErrors () =
+            elem.addClass("input-validation-error") |> ignore
+            errorElement.addClass("field-validation-error").removeClass("field-validation-valid")  |> ignore
+
         if errors.Value.ContainsKey property then
             
             let errs = errors.Value |> Map.tryFind property
-            if errs.IsNone then
-                errorElement.hide() |> ignore
+            if errs.IsSome then
+                let errorMessage = errs.Value |> List.fold (fun acc next -> acc + "<div>" + next + "</div>") ""
+                errorElement.html(errorMessage) |> ignore
+                showErrors()
+                
             else
-                let errorMessage = System.String.Join("<br/>", errs.Value)
-                //let errorMessage = errs.Value |> List.fold (fun acc next -> next + "<br/>" + acc) ""
-                errorElement.html(errorMessage).show() |> ignore
+                hideErrors()
         else
-            errorElement.hide() |> ignore
+            hideErrors()
 
     let resetErrors (property:string) =
         if errors.Value.ContainsKey property then
