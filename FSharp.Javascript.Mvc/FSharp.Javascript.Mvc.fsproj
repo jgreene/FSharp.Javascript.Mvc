@@ -52,6 +52,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <Compile Include="Extensions.fs" />
+    <Compile Include="FSharpHelper.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Javascript">

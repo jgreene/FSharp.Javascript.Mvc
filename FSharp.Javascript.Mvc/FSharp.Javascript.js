@@ -366,7 +366,7 @@ Microsoft.FSharp.Collections.SeqModule = {
                 return acc
             }
         }
-    },
+    }
 
 }
 

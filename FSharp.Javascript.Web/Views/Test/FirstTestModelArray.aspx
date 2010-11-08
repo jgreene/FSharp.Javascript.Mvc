@@ -6,7 +6,7 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
     
-    <%: Html.GetAllValidators() %>
+    <%: Html.FSharp().GetAllValidators() %>
 
     <h2>FirstTestModelArray</h2>
 
@@ -23,43 +23,43 @@
             <label>IsSelected:</label>
             <%= Html.CheckBoxFor(a => a[i].IsSelected)%>
             <%--<input type="text" value="true" name="IsSelected" />--%>
-            <%= Html.FSharpValidationMessageFor(a => a[i].IsSelected)%>
+            <%= Html.FSharp().ValidationMessageFor(a => a[i].IsSelected)%>
             <br />
             <br />
             <label>Name:</label>
             <%= Html.TextBoxFor(a => a[i].Name)%>
-            <%= Html.FSharpValidationMessageFor(a => a[i].Name)%>
+            <%= Html.FSharp().ValidationMessageFor(a => a[i].Name)%>
             <br />
             <br />
 
             <label>Date Of Birth:</label>
             <%= Html.EditorFor(a => a[i].DateOfBirth, "OptionDateTime")%>
-            <%= Html.FSharpValidationMessageFor(a => a[i].DateOfBirth)%>
+            <%= Html.FSharp().ValidationMessageFor(a => a[i].DateOfBirth)%>
             <br />
             <br />
 
             <label>PickANumber:</label>
             <%= Html.TextBoxFor(a => a[i].PickANumber)%>
-            <%= Html.FSharpValidationMessageFor(a => a[i].PickANumber)%>
+            <%= Html.FSharp().ValidationMessageFor(a => a[i].PickANumber)%>
             <br />
             <br />
 
             <label>Id:</label>
             <%= Html.TextBoxFor(a => a[i].Id)%>
-            <%= Html.FSharpValidationMessageFor(a => a[i].Id)%>
+            <%= Html.FSharp().ValidationMessageFor(a => a[i].Id)%>
             <br />
             <br />
 
             <label>Email:</label>
             <%= Html.TextBoxFor(a => a[i].Email)%>
-            <%= Html.FSharpValidationMessageFor(a => a[i].Email)%>
+            <%= Html.FSharp().ValidationMessageFor(a => a[i].Email)%>
             <br />
             <br />
         
             
 
             <br />
-            <%= Html.FSharpValidation(a =>a[i]) %>
+            <%= Html.FSharp().Validate(a => a[i])%>
 
             <div>------------------------------------------------------------------------</div>
         <%} %>

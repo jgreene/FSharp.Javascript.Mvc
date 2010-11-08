@@ -8,7 +8,7 @@
 
     <%--<%: Html.GetCompiledModule(typeof(FSharp.Javascript.Web.TestModule)) %>--%>
 
-    <%: Html.GetAllValidators() %>
+    <%: Html.FSharp().GetAllValidators() %>
 
     <h2>FirstTestModel</h2>
 
@@ -20,43 +20,43 @@
         <label>IsSelected:</label>
         <%= Html.CheckBoxFor(a => a.IsSelected)%>
         <%--<input type="text" value="true" name="IsSelected" />--%>
-        <%= Html.FSharpValidationMessageFor(a => a.IsSelected)%>
+        <%= Html.FSharp().ValidationMessageFor(a => a.IsSelected)%>
         <br />
         <br />
         <label>Name:</label>
         <%= Html.TextBoxFor(a => a.Name) %>
-        <%= Html.FSharpValidationMessageFor(a => a.Name)%>
+        <%= Html.FSharp().ValidationMessageFor(a => a.Name)%>
         <br />
         <br />
 
         <label>Date Of Birth:</label>
         <%= Html.EditorFor(a => a.DateOfBirth, "OptionDateTime") %>
-        <%= Html.FSharpValidationMessageFor(a => a.DateOfBirth)%>
+        <%= Html.FSharp().ValidationMessageFor(a => a.DateOfBirth)%>
         <br />
         <br />
 
         <label>PickANumber:</label>
         <%= Html.TextBoxFor(a => a.PickANumber) %>
-        <%= Html.FSharpValidationMessageFor(a => a.PickANumber)%>
+        <%= Html.FSharp().ValidationMessageFor(a => a.PickANumber)%>
         <br />
         <br />
 
         <label>Id:</label>
         <%= Html.TextBoxFor(a => a.Id) %>
-        <%= Html.FSharpValidationMessageFor(a => a.Id)%>
+        <%= Html.FSharp().ValidationMessageFor(a => a.Id)%>
         <br />
         <br />
 
         <label>Email:</label>
         <%= Html.TextBoxFor(a => a.Email)%>
-        <%= Html.FSharpValidationMessageFor(a => a.Email)%>
+        <%= Html.FSharp().ValidationMessageFor(a => a.Email)%>
         <br />
         <br />
         
         <input type="submit" value="Submit"/>
 
         <br />
-        <%= Html.FSharpValidation() %>
+        <%= Html.FSharp().Validate() %>
 
     <%} %>
 

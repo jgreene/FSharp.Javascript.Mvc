@@ -25,9 +25,9 @@
 
         //the lastObject is an array. we will set the value to the array's index
         if (isArray(lastName)) {
-            var index = getArrayIndex(lastName)
+            var arrayIndex = getArrayIndex(lastName)
 
-            var temp = lastObject[index]
+            var temp = lastObject[arrayIndex]
             if (!temp) { temp = {}; }
 
             //this is the end of the names, this value will be the actual value of what we are parsing
@@ -35,7 +35,7 @@
                 temp[name] = arrayItem.value;
             }
 
-            lastObject[index] = temp;
+            lastObject[arrayIndex] = temp;
             setGetter(name, temp)
             return temp[name];
         }
