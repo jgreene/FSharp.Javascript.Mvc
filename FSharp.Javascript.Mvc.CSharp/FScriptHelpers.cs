@@ -29,7 +29,7 @@ namespace FSharp.Javascript.Mvc
             return new MvcHtmlString(string.Format(ScriptTag, urlHelper.Action("GetCompiledModule", "FScript", new { typ = moduleType.FullName + "," + moduleType.Assembly.FullName })));
         }
 
-        public static MvcHtmlString GetRequiredFScriptFiles(this FSharpHelper helper)
+        public static MvcHtmlString GetRequiredScripts(this FSharpHelper helper)
         {
             var urlHelper = new UrlHelper(helper.HtmlHelper.ViewContext.RequestContext);
 

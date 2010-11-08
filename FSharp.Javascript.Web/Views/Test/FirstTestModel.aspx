@@ -8,11 +8,9 @@
 
     <%--<%: Html.GetCompiledModule(typeof(FSharp.Javascript.Web.TestModule)) %>--%>
 
-    <%: Html.FSharp().GetAllValidators() %>
-
     <h2>FirstTestModel</h2>
 
-    <% Html.EnableClientValidation(); Html.EnableUnobtrusiveJavaScript(false); %>
+    <%--<% Html.EnableClientValidation(); Html.EnableUnobtrusiveJavaScript(false); %>--%>
 
     <%: Html.ValidationSummary() %>
 
