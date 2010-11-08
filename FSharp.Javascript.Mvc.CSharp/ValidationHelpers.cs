@@ -11,14 +11,14 @@ namespace FSharp.Javascript.Mvc
     {
 
         const string script = @"<script type='text/javascript'>
-        $(document).ready(function(){{
-            FormValidator.setupValidation({{ Form : '{0}', Prefix : '{1}', Type : '{2}', 
-get_Form : function() {{ return this.Form; }}, 
-get_Prefix : function(){{ return this.Prefix; }},
-get_Type : function(){{ return this.Type; }}
+$(document).ready(function(){{
+    FormValidator.setupValidation({{ Form : '{0}', Prefix : '{1}', Type : '{2}', 
+        get_Form : function() {{ return this.Form; }}, 
+        get_Prefix : function(){{ return this.Prefix; }},
+        get_Type : function(){{ return this.Type; }}
+    }})
 }})
-        }})
-        </script>";
+</script>";
         public static MvcHtmlString FSharpValidation<TModel>(this HtmlHelper<TModel> helper)
         {
             Type type = typeof(TModel);

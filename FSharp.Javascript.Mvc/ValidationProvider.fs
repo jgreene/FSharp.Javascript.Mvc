@@ -1,6 +1,7 @@
 ﻿namespace FSharp.Javascript.Mvc
 
 open System.Web.Mvc
+open FSharp.Javascript.Mvc.Validation
 
 type FSharpModelValidator(validators:IValidator seq, metadata:ModelMetadata, context:ControllerContext) =
     inherit ModelValidator(metadata, context)
@@ -36,7 +37,7 @@ type FSharpValidationProvider() =
     inherit ModelValidatorProvider()
 
     override this.GetValidators(metadata:ModelMetadata, context:ControllerContext) =
-        let allValidators = Validation.getValidators metadata.ModelType
+        let allValidators = getValidators metadata.ModelType
         //let validators = allValidators  |> Seq.filter (fun v -> v.errorField = metadata.PropertyName)
         
         seq { yield new FSharpModelValidator(allValidators, metadata, context) :> ModelValidator }

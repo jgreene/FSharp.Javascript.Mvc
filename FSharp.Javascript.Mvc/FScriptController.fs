@@ -2,6 +2,7 @@
 
 open System.Web.Mvc
 open FSharp.Javascript.Converter
+open FSharp.Javascript.Mvc.Validation
 
 
 type FScriptController() =
@@ -46,15 +47,15 @@ type FScriptController() =
             System.String.Join(",", props)
 
         sprintf "{ 
-            Type : '%s', 
-            ErrorField : '%s', 
-            FieldNames : [%s], 
-            Validator : %s,
-            get_Type : function() { return this.Type },
-            get_ErrorField : function() { return this.ErrorField },
-            get_FieldNames : function() { return this.FieldNames },
-            get_Validator : function () { return this.Validator }
-            }" 
+Type : '%s', 
+ErrorField : '%s', 
+FieldNames : [%s], 
+Validator : %s,
+get_Type : function() { return this.Type },
+get_ErrorField : function() { return this.ErrorField },
+get_FieldNames : function() { return this.FieldNames },
+get_Validator : function () { return this.Validator }
+}"
             validator.typ.FullName 
             validator.errorField 
             (getProperties validator.properties)

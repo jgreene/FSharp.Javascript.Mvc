@@ -47,6 +47,17 @@ type TestController() =
         else
             base.View("Success")
 
+    member this.SecondTestModel() =
+        let model = { FirstName = "James"; LastName = "Kirk"; Addresses = [|{ Address1 = "123 S. St."; Address2 = ""; Zip = "44444" }|] }
+
+        base.View("SecondTestModel", model)
+
+    member this.SecondTestModelSubmit(model:SecondTestModel) =
+        if base.ModelState.IsValid = false then
+            base.View("SecondTestModel", model)
+        else
+            base.View("Success")
+
 
 type HomeController() =
     inherit Controller()

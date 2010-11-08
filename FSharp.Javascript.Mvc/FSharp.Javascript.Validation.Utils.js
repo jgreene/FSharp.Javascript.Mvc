@@ -1,72 +1,91 @@
 ﻿var getObjectFromArray = function (array) {
-    var o = {};
-    var a = array;
+    var result = {}
 
-    var setValue = function (obj, name, value) {
+    var isArray = function (name) {
+        return name != null && name.indexOf("[") != -1
+    }
 
-        if (obj[name] && name.indexOf("[") != -1) {
-            if (!obj[name].push) {
-                obj[name] = [obj[name]];
-            }
-            obj[name].push(value || '');
-        } else if (obj[name] == null) {
-            obj[name] = value || '';
+    var getArrayName = function (name) {
+        return name.substring(0, name.indexOf("["))
+    }
+
+    var getArrayIndex = function (name) {
+        return name.substring(name.indexOf("[") + 1, name.indexOf("]"))
+    }
+
+    var setGetter = function (name, obj) {
+        obj["get_" + name] = function () {
+            return this[name];
         }
     }
 
-    $.each(a, function () {
+    var loop = function (index, name, lastName, lastObject, arrayItem, names) {
 
-        var names = this.name.split('.');
+        var isLast = index == (names.length - 1)
 
-        var self = this;
+        //the lastObject is an array. we will set the value to the array's index
+        if (isArray(lastName)) {
+            var index = getArrayIndex(lastName)
 
-        if (names.length > 1) {
-            var obj = {};
-            var lastObj = null;
+            var temp = lastObject[index]
+            if (!temp) { temp = {}; }
 
-            $.each(names, function (i, name) {
-                if (i == 0) {
-                    setValue(o, name, obj);
-                }
-                else if (i == names.length - 1) {
-                    setValue(obj, name, self.value)
-                }
-                else {
-                    if (lastObj == null)
-                        lastObj = obj;
+            //this is the end of the names, this value will be the actual value of what we are parsing
+            if (isLast) {
+                temp[name] = arrayItem.value;
+            }
 
-                    var tempObj = {};
-
-                    setValue(lastObj, name, tempObj)
-
-                    lastObj = tempObj;
-                }
-
-                setValue(o, "get_" + name, function () {
-                    return this[name];
-                });
-            });
-        } else {
-            setValue(o, self.name, self.value)
-            setValue(o, "get_" + self.name, function () {
-                return this[self.name];
-            });
+            lastObject[index] = temp;
+            setGetter(name, temp)
+            return temp[name];
         }
+
+        //this is the end of the names, this value will be the actual value of what we are parsing
+        if (isLast) {
+            if (!lastObject[name]) {
+                lastObject[name] = arrayItem.value;
+            }
+            
+            setGetter(name, lastObject)
+            return lastObject[name]
+        }
+
+        //current name is an array
+        if (isArray(name)) {
+            var newName = getArrayName(name)
+            if (!lastObject[newName]) {
+                lastObject[newName] = []
+            }
+
+            setGetter(newName, lastObject)
+
+            return lastObject[newName];
+        }
+
+        if (!lastObject[name]) {
+            lastObject[name] = {}
+        }
+
+        setGetter(name, lastObject)
+
+        return lastObject[name]
+    }
+
+    $.each(array, function () {
+        var arrayItem = this;
+
+        var names = arrayItem.name.split('.')
+
+        var lastObject = result;
+
+        $.each(names, function (i, name) {
+            var lastName = names[i - 1]
+            lastObject = loop(i, name, lastName, lastObject, arrayItem, names)
+        });
+
     });
-    return o;
-};
 
-var getObjectFromPrefix = function (obj, prefix) {
-    var innerPrefix = prefix != null ? prefix : "";
-    var prefixes = innerPrefix.split('.');
-
-    var tempObj = obj;
-
-    $.each(prefixes, function () {
-        tempObj = tempObj[this];
-    });
-
-    return tempObj;
+    return result;
 }
 
 FormValidator.getFormModel = function (formValidator) {
@@ -111,6 +130,11 @@ FormValidator.getFormModel = function (formValidator) {
 
 FormValidator.getValueFromModel = function (model) {
     return function (property) {
+        //ensure getter exists
+        model["get_" + property] = function () {
+            return this[property];
+        }
+
         return model[property];
     }
 }

@@ -74,15 +74,14 @@ let currentValidators<'a> () = [||] : 'a array
 let setupValidation<'a> (formValidator : FormValidator<'a>) =
     let form = jquery("#" + formValidator.Form)
 
-    let getInputName fieldName = 
+    let getInputName fieldName =
         if formValidator.Prefix = "" then
-            "input[name='" + fieldName + "']"
+            fieldName
         else
-            "input[name='" + formValidator.Prefix + "." + fieldName + "']"
+            formValidator.Prefix + "." + fieldName
 
-    let getElement (prop:string) =
-        let inputName = getInputName prop
-        form.find(inputName)
+    let getInputByName fieldName = 
+        form.find("input[name='" + (getInputName fieldName) + "']")
 
     let getErrorElement (elem:jquery) =
         let id = (elem.attr("name") + "_validationMessage")
@@ -91,29 +90,29 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
     let errors = ref Map.empty<string,string list>
 
     let addError property errorMessage =
-        if errors.Value.ContainsKey property then
-            let propertyErrors = errors.Value |> Map.tryFind property
+        let key = getInputName property
+        let propertyErrors = errors.Value |> Map.tryFind key
 
-            if propertyErrors.IsSome then
-                if propertyErrors.Value |> List.exists (fun x -> x = errorMessage) then
-                    ()
-                else
-                    errors := errors.Value.Remove(property).Add(property, (errorMessage::propertyErrors.Value))
-            else
+        if propertyErrors.IsSome then
+            if propertyErrors.Value |> List.exists (fun x -> x = errorMessage) then
                 ()
+            else
+                errors := errors.Value.Remove(key).Add(key, (errorMessage::propertyErrors.Value))
         else
-            errors := errors.Value.Add(property, [errorMessage])
+            errors := errors.Value.Add(key, [errorMessage])
+            
 
     
 
     let getErrors property =
-        if errors.Value.ContainsKey property then
-            errors.Value |> Map.find property
+        let key = getInputName property
+        if errors.Value.ContainsKey key then
+            errors.Value |> Map.find key
         else
             []
 
     let displayErrors (property:string)  =
-        let elem = getElement property
+        let elem = getInputByName property
         let errorElement = getErrorElement elem
 
         let hideErrors () =
@@ -124,22 +123,20 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
             elem.addClass("input-validation-error") |> ignore
             errorElement.addClass("field-validation-error").removeClass("field-validation-valid")  |> ignore
 
-        if errors.Value.ContainsKey property then
-            
-            let errs = errors.Value |> Map.tryFind property
-            if errs.IsSome then
-                let errorMessage = errs.Value |> List.fold (fun acc next -> acc + "<div>" + next + "</div>") ""
-                errorElement.html(errorMessage) |> ignore
-                showErrors()
+        let key = getInputName property
+        let errs = errors.Value |> Map.tryFind key
+        if errs.IsSome then
+            let errorMessage = errs.Value |> List.fold (fun acc next -> acc + "<div>" + next + "</div>") ""
+            errorElement.html(errorMessage) |> ignore
+            showErrors()
                 
-            else
-                hideErrors()
         else
             hideErrors()
 
     let resetErrors (property:string) =
-        if errors.Value.ContainsKey property then
-            errors := errors.Value.Remove(property)
+        let key = getInputName property
+        if errors.Value.ContainsKey key then
+            errors := errors.Value.Remove(key)
             displayErrors property
 
     let checkTypes (props:(string * string) array) (model:'a) =
@@ -227,8 +224,7 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
     |> Seq.iter (fun validator -> do
                     let field = validator.ErrorField
                     let properties = validator.FieldNames
-                    let inputName = getInputName field
-                    let input = form.find(inputName)
+                    let input = getInputByName field
 
                     input.bind("FSharpValidate", 
                         (fun () -> 
@@ -262,8 +258,7 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
         formValidators
         |> Seq.iter (fun validator -> do
             let field = validator.ErrorField
-            let inputName = getInputName field
-            let input = form.find(inputName)
+            let input = getInputByName field
 
             resetErrors field
 

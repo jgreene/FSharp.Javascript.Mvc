@@ -10,3 +10,14 @@ type FirstTestModel = {
     PickANumber : int;
     Email : string;
 }
+
+type SecondTestModel = {
+    FirstName : string
+    LastName : string
+    Addresses : Address array
+}
+and Address = {
+    Address1 : string
+    Address2 : string
+    Zip : string
+}
