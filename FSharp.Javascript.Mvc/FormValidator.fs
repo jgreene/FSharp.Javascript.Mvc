@@ -126,7 +126,7 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
         let key = getInputName property
         let errs = errors.Value |> Map.tryFind key
         if errs.IsSome then
-            let errorMessage = errs.Value |> List.fold (fun acc next -> acc + "<div>" + next + "</div>") ""
+            let errorMessage = errs.Value |> List.fold (fun acc next -> acc + "<span>" + next + "</span>") ""
             errorElement.html(errorMessage) |> ignore
             showErrors()
                 
@@ -220,13 +220,15 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
             
     let formValidators = (currentValidators ()) |> Seq.filter (fun validator -> validator.Type = formValidator.Type)
 
+    let eventNameForValidation = "FSharpValidate"
+
     formValidators    
     |> Seq.iter (fun validator -> do
                     let field = validator.ErrorField
                     let properties = validator.FieldNames
                     let input = getInputByName field
 
-                    input.bind("FSharpValidate", 
+                    input.bind(eventNameForValidation, 
                         (fun () -> 
                             let model = getFormModel formValidator (fun field error ->
                                                                     addError field error
@@ -248,7 +250,7 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
 
                     input.blur(fun () ->
                         resetErrors field
-                        input.triggerHandler("FSharpValidate") |> ignore
+                        input.triggerHandler(eventNameForValidation) |> ignore
                         displayErrors field
                     ) |> ignore
                 )
@@ -262,7 +264,7 @@ let setupValidation<'a> (formValidator : FormValidator<'a>) =
 
             resetErrors field
 
-            input.triggerHandler("FSharpValidate") |> ignore
+            input.triggerHandler(eventNameForValidation) |> ignore
             displayErrors field
             )
 

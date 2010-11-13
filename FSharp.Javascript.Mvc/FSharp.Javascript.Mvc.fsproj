@@ -34,11 +34,12 @@
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
+    <Compile Include="Extensions.fs" />
+    <Compile Include="FSharpHelper.fs" />
     <Compile Include="Fakes.fs" />
     <Compile Include="Utilities.fs" />
     <Compile Include="FormValidator.fs" />
     <Compile Include="Validation.fs" />
-    <None Include="Build.fsx" />
     <Compile Include="ValidationProvider.fs" />
     <Compile Include="OptionBinder.fs" />
     <Compile Include="RecordBinder.fs" />
@@ -51,8 +52,6 @@
     <EmbeddedResource Include="FSharp.Javascript.Validation.Utils.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <Compile Include="Extensions.fs" />
-    <Compile Include="FSharpHelper.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Javascript">

@@ -58,6 +58,16 @@ type TestController() =
         else
             base.View("Success")
 
+    member this.ThirdTestModel () =
+        let model = { FirstName = "James"; LastName = "Kirk"; Address = { Address1 = "123 S. St."; Address2 = ""; Zip = "44444" } }
+        base.View("ThirdTestModel", model)
+
+    member this.ThirdTestModelSubmit(model:ThirdTestModel) =
+        if base.ModelState.IsValid = false then
+            base.View("ThirdTestModel", model)
+        else
+            base.View("Success")
+
 
 type HomeController() =
     inherit Controller()

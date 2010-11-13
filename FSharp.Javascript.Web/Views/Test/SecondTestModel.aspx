@@ -24,7 +24,7 @@
         <br />
         <br />
 
-        <%for(int i = 0; i< Model.Addresses.Length; i++){ %>
+        <%--<%for(int i = 0; i< Model.Addresses.Length; i++){ %>
             <label>Address1:</label>
             <%= Html.TextBoxFor(a => a.Addresses[i].Address1)%>
             <%= Html.FSharp().ValidationMessageFor(a => a.Addresses[i].Address1)%>
@@ -44,7 +44,7 @@
             <br />
 
             <%: Html.FSharp().Validate(a=>a.Addresses[i]) %>
-        <%} %>
+        <%} %>--%>
 
         <%: Html.FSharp().Validate()%>
         <input type="submit" value="Submit" />

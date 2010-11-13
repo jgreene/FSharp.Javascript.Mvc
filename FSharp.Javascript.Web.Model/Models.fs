@@ -21,3 +21,14 @@ and Address = {
     Address2 : string
     Zip : string
 }
+
+type ThirdTestModel = {
+    FirstName : string
+    LastName : string
+    Address : Address2
+}
+and Address2 = {
+    Address1 : string
+    Address2 : string
+    Zip : string
+}

@@ -36,7 +36,6 @@
             }
 
             lastObject[arrayIndex] = temp;
-            setGetter(name, temp)
             return temp[name];
         }
 
@@ -46,7 +45,6 @@
                 lastObject[name] = arrayItem.value;
             }
             
-            setGetter(name, lastObject)
             return lastObject[name]
         }
 
@@ -57,16 +55,12 @@
                 lastObject[newName] = []
             }
 
-            setGetter(newName, lastObject)
-
             return lastObject[newName];
         }
 
         if (!lastObject[name]) {
             lastObject[name] = {}
         }
-
-        setGetter(name, lastObject)
 
         return lastObject[name]
     }
@@ -130,12 +124,24 @@ FormValidator.getFormModel = function (formValidator) {
 
 FormValidator.getValueFromModel = function (model) {
     return function (property) {
-        //ensure getter exists
-        model["get_" + property] = function () {
-            return this[property];
-        }
 
-        return model[property];
+        var names = property.split('.')
+
+        var result = model
+
+        $.each(names, function (i, name) {
+            if (!result["get_" + name]) {
+                result["get_" + name] = function () {
+                    return this[name];
+                }
+                result = result[name];
+            } else {
+//                result = result["get_" + name]()
+            }
+            
+        })
+
+        return result;
     }
 }
 

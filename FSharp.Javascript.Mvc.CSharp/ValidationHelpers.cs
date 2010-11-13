@@ -19,6 +19,13 @@ $(document).ready(function(){{
     }})
 }})
 </script>";
+
+        /// <summary>
+        /// Outputs a <script></script> tag that initializes validation for the current form model.
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="helper"></param>
+        /// <returns></returns>
         public static MvcHtmlString Validate<TModel>(this FSharpHelper<TModel> helper)
         {
             Type type = typeof(TModel);
@@ -26,6 +33,14 @@ $(document).ready(function(){{
             return new MvcHtmlString(string.Format(script, helper.HtmlHelper.ViewContext.FormContext.FormId, "", type.FullName));
         }
 
+        /// <summary>
+        /// Outputs a <script></script> tag that initializes validation for the selected form model.
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <typeparam name="TProp"></typeparam>
+        /// <param name="helper"></param>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         public static MvcHtmlString Validate<TModel, TProp>(this FSharpHelper<TModel> helper, Expression<Func<TModel, TProp>> expression)
         {
             string expressionString = ExpressionHelper.GetExpressionText((LambdaExpression)expression);
@@ -36,8 +51,17 @@ $(document).ready(function(){{
             return new MvcHtmlString(string.Format(script, helper.HtmlHelper.ViewContext.FormContext.FormId, fullHtmlFieldName, type.FullName));
         }
 
-        const string OuterError = "<div id=\"{0}\" class=\"{1}\">{2}</div>";
-        const string InnerError = "<div>{0}</div>";
+        const string OuterError = "<div id=\"{0}\" class=\"validationMessageFor {1}\">{2}</div>";
+        const string InnerError = "<span>{0}</span>";
+
+        /// <summary>
+        /// Outputs validation errors.
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <typeparam name="TProp"></typeparam>
+        /// <param name="helper"></param>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         public static MvcHtmlString ValidationMessageFor<TModel, TProp>(this FSharpHelper<TModel> helper, Expression<Func<TModel, TProp>> expression)
         {
             string expressionString = ExpressionHelper.GetExpressionText((LambdaExpression)expression);

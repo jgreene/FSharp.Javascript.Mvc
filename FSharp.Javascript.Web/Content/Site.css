@@ -26,3 +26,8 @@
 {
     display: none;
 }
+
+.validationMessageFor span
+{
+    display: block;
+}

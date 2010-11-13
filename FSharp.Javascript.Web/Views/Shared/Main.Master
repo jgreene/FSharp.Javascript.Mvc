@@ -10,6 +10,7 @@
 
     <script type="text/javascript" src="/Scripts/mvc/jquery-1.4.1.js"></script>
 
+    
     <%: Html.FSharp().GetRequiredScripts() %>
     <%: Html.FSharp().GetAllValidators() %>
 

@@ -15,12 +15,16 @@
     <%: Html.ValidationSummary() %>
 
     <%using (Html.BeginForm("FirstTestModelSubmit", "test")){ %>
-        <label>IsSelected:</label>
-        <%= Html.CheckBoxFor(a => a.IsSelected)%>
-        <%--<input type="text" value="true" name="IsSelected" />--%>
-        <%= Html.FSharp().ValidationMessageFor(a => a.IsSelected)%>
+        <div class="formItem">
+            <div class="formElement">
+                <label>IsSelected:</label>
+            
+                <%= Html.CheckBoxFor(a => a.IsSelected)%>
+            </div>
+            <%= Html.FSharp().ValidationMessageFor(a => a.IsSelected)%>
+        </div>
         <br />
-        <br />
+
         <label>Name:</label>
         <%= Html.TextBoxFor(a => a.Name) %>
         <%= Html.FSharp().ValidationMessageFor(a => a.Name)%>

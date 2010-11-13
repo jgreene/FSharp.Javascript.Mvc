@@ -46,18 +46,48 @@ let private getPropertyType (typ:System.Type) =
 let private getProperties<'a, 'b> (expression:Expr<'a -> 'b>) = 
     let typ = typeof<'a>
 
+    let primitiveTypes = [typeof<string>;typeof<bool>;typeof<int>;typeof<single>;typeof<System.DateTime>;typeof<float>;typeof<decimal>;typeof<double>;]
+    let isPrimitive (typ:System.Type) =
+        typ.IsArray || (typ.IsGenericType) || (primitiveTypes |> List.exists (fun x -> typ.IsAssignableFrom(x) || x = typ))
+
+    let getPropertyInfos expr =
+        let rec loop expr acc =
+            match expr with
+            | Patterns.PropertyGet(e, p, xs) ->
+                if e.IsSome then
+                    let result = loop e.Value acc
+                    p::result
+                else
+                    p::acc
+            | _ -> acc
+
+        (loop expr []) |> List.rev
+
     let rec loop expr acc =
         match expr with
         | Patterns.PropertyGet(e, p, xs) -> 
+            
             if e.IsSome then
-                let e' = loop e.Value acc
-                if p.DeclaringType = typ then
-                    (p.Name, getPropertyType p.PropertyType)::e'
-                else
-                    e'
+                let properties = getPropertyInfos expr
+                let props = ref []
+                let cont = ref true
+                let propertyType = ref null
+                for p in properties do
+                    if !cont then
+                        if isPrimitive p.PropertyType then
+                            cont := false
+                            props := p::!props
+                            propertyType := getPropertyType p.PropertyType
+                        else
+                            props := p::!props
+
+                let name = String.Join(".", !props |> List.rev |> List.map (fun p -> p.Name))
+                (name, !propertyType)::acc
+                    
             else
+                let propertyType = getPropertyType p.PropertyType
                 if p.DeclaringType = typ then
-                    (p.Name, getPropertyType p.PropertyType)::acc
+                    (p.Name, propertyType)::acc
                 else
                     acc
         
@@ -66,7 +96,7 @@ let private getProperties<'a, 'b> (expression:Expr<'a -> 'b>) =
             loop expr acc
         | ShapeCombination(ob, list) ->
             let result = [for l in list do yield! loop l []]
-            result@acc
+            result@acc |> Seq.distinct |> Seq.toList
 
     let result = loop expression []
     result
@@ -88,7 +118,7 @@ let private getPropertyName (prop:Expr) =
         | _ -> acc
             
 
-    String.Join(".", loop prop [])
+    String.Join(".", (loop prop []) |> List.rev)
                                                                                 
 
 let getValidators (typ:Type) =
@@ -149,7 +179,7 @@ let private getUrlInfo<'a, 'b, 'c>(expr:Expr<'a -> ('b  -> 'c)>) (name:string) =
 
 
 
-let registerRemoteValidator<'a, 'b, 'c> (property:Expr) (expr:Expr<'a -> ('b  -> 'c)>) =
+let registerRemoteValidator<'a, 'b, 'c when 'b :> System.Web.Mvc.ControllerBase and 'c :> FSharp.Javascript.Mvc.Extensions.ValidationResult> (property:Expr) (expr:Expr<'a -> ('b  -> 'c)>) =
     
 
     let properties = (getProperties expr) |> Seq.distinct |> Seq.toList
@@ -163,7 +193,7 @@ let registerRemoteValidator<'a, 'b, 'c> (property:Expr) (expr:Expr<'a -> ('b  ->
 
     validators.Add(validator)
 
-let registerRemoteValidatorWithoutField<'a, 'b, 'c> (expr:Expr<'a -> ('b  -> 'c)>)  =
+let registerRemoteValidatorWithoutField<'a, 'b, 'c when 'b :> System.Web.Mvc.ControllerBase and 'c :> FSharp.Javascript.Mvc.Extensions.ValidationResult> (expr:Expr<'a -> ('b  -> 'c)>)  =
     
 
     let properties = (getProperties expr) |> Seq.distinct |> Seq.toList
