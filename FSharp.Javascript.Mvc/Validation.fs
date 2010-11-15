@@ -46,7 +46,7 @@ let private getPropertyType (typ:System.Type) =
 let private getProperties<'a, 'b> (expression:Expr<'a -> 'b>) = 
     let typ = typeof<'a>
 
-    let primitiveTypes = [typeof<string>;typeof<bool>;typeof<int>;typeof<single>;typeof<System.DateTime>;typeof<float>;typeof<decimal>;typeof<double>;]
+    let primitiveTypes = [typeof<string>;typeof<bool>;typeof<int>;typeof<Int64>;typeof<single>;typeof<System.DateTime>;typeof<float>;typeof<decimal>;typeof<double>;]
     let isPrimitive (typ:System.Type) =
         typ.IsArray || (typ.IsGenericType) || (primitiveTypes |> List.exists (fun x -> typ.IsAssignableFrom(x) || x = typ))
 

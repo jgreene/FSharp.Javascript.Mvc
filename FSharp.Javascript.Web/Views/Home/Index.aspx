@@ -18,6 +18,12 @@
             <li>
                 <a href="/test/FirstTestModelArray">First Test Model Array</a>
             </li>
+            <li>
+                <a href="/test/SecondTestModel">Second Test Model</a>
+            </li>
+            <li>
+                <a href="/test/ThirdTestModel">Third Test Model</a>
+            </li>
         </ul>
     </fieldset>
 
