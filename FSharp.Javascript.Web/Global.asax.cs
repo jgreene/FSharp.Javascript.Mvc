@@ -34,7 +34,7 @@ namespace FSharp.Javascript.Web
         {
             AreaRegistration.RegisterAllAreas();
 
-            RegisterGlobalFilters(GlobalFilters.Filters);
+            //RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
 
             FSharp.Javascript.Mvc.Setup.initialize();
