@@ -68,10 +68,11 @@ type TestController() =
         else
             base.View("Success")
 
+    member this.CanvasTest() = base.View()
 
-type HomeController() =
-    inherit Controller()
+    member this.Tetris() = base.View()
 
-    member this.Index() = base.View()
+
+
 
         

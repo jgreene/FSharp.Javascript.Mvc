@@ -32,11 +32,36 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="System.Web.WebPages" />
-    <Reference Include="System.Web.Helpers" />
+    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Helpers">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -64,14 +89,26 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\site.css" />
+    <Content Include="Content\tetris\blue.png" />
+    <Content Include="Content\tetris\cyan.png" />
+    <Content Include="Content\tetris\green.png" />
+    <Content Include="Content\tetris\orange.png" />
+    <Content Include="Content\tetris\purple.png" />
+    <Content Include="Content\tetris\red.png" />
+    <Content Include="Content\tetris\yellow.png" />
     <Content Include="Global.asax" />
-    <Content Include="Content\Site.css" />
+    <Content Include="Content\Site2.css" />
     <Content Include="Scripts\fsharp\FSharp.Javascript.Dom.js" />
     <Content Include="Scripts\fsharp\FSharp.Javascript.Jquery.js" />
     <Content Include="Scripts\fsharp\FSharp.Javascript.js" />
     <Content Include="Scripts\fsharp\FSharp.Javascript.Library.js" />
     <Content Include="Scripts\fsharp\FSharp.Javascript.Validation.js" />
+    <Content Include="TempAssemblies\placeholder.txt" />
     <Content Include="Views\Shared\EditorTemplates\OptionDateTime.ascx" />
+    <Content Include="Views\Canvas\CanvasTest.aspx" />
+    <Content Include="Views\Test\Index.aspx" />
+    <Content Include="Views\Canvas\Tetris.aspx" />
     <Content Include="Views\Test\ThirdTestModel.aspx" />
     <Content Include="Views\Test\FirstTestModel.aspx" />
     <Content Include="Views\Home\Index.aspx" />

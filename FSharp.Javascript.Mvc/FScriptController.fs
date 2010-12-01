@@ -7,9 +7,19 @@ open FSharp.Javascript.Mvc.Validation
 
 type FScriptController() =
     inherit Controller()
+    
+//    let getUniqueId (name:string) =
+//            let encoder = System.Text.Encoding.Unicode.GetEncoder()
+//
+//            let text = (Array.create (name.Length * 2) 0uy) : byte array
+//
+//            encoder.GetBytes(name.ToCharArray(), 0, name.Length, text, 0, true) |> ignore
+//            let md5 = new System.Security.Cryptography.MD5CryptoServiceProvider()
+//            let result = md5.ComputeHash(text)
+//            let sb = result |> Array.fold (fun (acc:System.Text.StringBuilder) next -> acc.Append(next.ToString("X2"))) (new System.Text.StringBuilder())
+//            sb.ToString()
 
-    let getEmbeddedScript (name:string) =
-        let assembly = typeof<FScriptController>.Assembly
+    let getEmbeddedScript (assembly:System.Reflection.Assembly) (name:string) =
         use stream = assembly.GetManifestResourceStream(name)
         use reader = new System.IO.StreamReader(stream)
         reader.ReadToEnd()
@@ -21,6 +31,7 @@ type FScriptController() =
             scripts.ToString()
         else
             let typ = System.Type.GetType("FormValidator, FSharp.Javascript.Mvc")
+            let getEmbeddedScript = getEmbeddedScript typ.Assembly
             let formValidatorScript = convertModule typ
             let scripts = ["FSharp.Javascript.js";
                             "FSharp.Javascript.Library.js";
@@ -69,15 +80,21 @@ get_Validator : function () { return this.Validator }
 
 
     member this.GetCompiledModule(typ:string) =
-        let typ = System.Type.GetType(typ)
-
-        let javascript = convertModule typ
+        this.Response.AddHeader("Expires", System.DateTime.Now.AddDays(1.0).ToString())
+        let javascript = this.HttpContext.Cache.Get(typ) :?> string
         base.Content(javascript, "application/x-javascript")
 
+    
     member this.GetRequiredScripts() =
-        base.Content(getRequiredScripts this.HttpContext.Cache, "application/x-javascript")
+        try
+            this.Response.AddHeader("Expires", System.DateTime.Now.AddDays(1.0).ToString())
+            let script = getRequiredScripts this.HttpContext.Cache
+            base.Content(script, "application/x-javascript")
+        with
+        | ex -> base.Content(ex.ToString(), "application/x-javascript")
 
     member this.GetAllValidators() =
+        this.Response.AddHeader("Expires", System.DateTime.Now.AddDays(1.0).ToString())
         let script = sprintf "$(document).ready(function(){ FormValidator.currentValidators = function () { return %s } })" (getValidators ())
         
         base.Content(script, "application/x-javascript")

@@ -11,19 +11,12 @@
 <script type="text/javascript" src="/Scripts/mvc/jquery-1.4.1.js"></script>
 
     
-<%: Html.FSharp().GetRequiredScripts() %>
-<%: Html.FSharp().GetAllValidators() %>
+    <%: Html.FSharp().GetRequiredScripts() %>
+    <%: Html.FSharp().GetAllValidators() %>
 
-    <%: Html.FSharp().GetCompiledModule(typeof(FSharp.Javascript.Web.TestModule)) %>
-
-    <%--<script type="text/javascript" src="/Scripts/fsharp/FSharp.Javascript.js"></script>
-    <script type="text/javascript" src="/Scripts/fsharp/FSharp.Javascript.Dom.js"></script>
-    <script type="text/javascript" src="/Scripts/fsharp/FSharp.Javascript.Jquery.js"></script>
-    <script type="text/javascript" src="/Scripts/fsharp/FSharp.Javascript.Library.js"></script>
-    <script type="text/javascript" src="/Scripts/fsharp/FSharp.Javascript.Validation.js"></script>--%>
 </head>
 <body>
-    <div>
+    <div class="center">
         <asp:ContentPlaceHolder ID="MainContent" runat="server">
         
         </asp:ContentPlaceHolder>
