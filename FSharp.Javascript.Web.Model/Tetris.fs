@@ -467,8 +467,8 @@ let main() =
                 | 38.0 -> newState := rotate !newState
                 | 39.0 -> newState := moveRight !newState
                 | 40.0 -> newState := moveDown !newState
-                //space
-                | 32.0 -> 
+                //space or enter
+                | 32.0 | 13.0 -> 
                     newState := [0..19] |> List.fold (fun acc next -> if acc.piece.IsSome then moveDown acc else acc) !newState
                     unbind()
                 | _ -> ()

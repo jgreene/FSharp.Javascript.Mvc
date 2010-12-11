@@ -8,11 +8,12 @@
 
     <link rel="Stylesheet" type="text/css" href="/Content/Site.css" />
 
-<script type="text/javascript" src="/Scripts/mvc/jquery-1.4.1.js"></script>
+    <script type="text/javascript" src="/Scripts/mvc/jquery-1.4.1.js"></script>
 
     
     <%: Html.FSharp().GetRequiredScripts() %>
     <%: Html.FSharp().GetAllValidators() %>
+
 
 </head>
 <body>

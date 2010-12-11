@@ -8,16 +8,6 @@ open FSharp.Javascript.Mvc.Validation
 type FScriptController() =
     inherit Controller()
     
-//    let getUniqueId (name:string) =
-//            let encoder = System.Text.Encoding.Unicode.GetEncoder()
-//
-//            let text = (Array.create (name.Length * 2) 0uy) : byte array
-//
-//            encoder.GetBytes(name.ToCharArray(), 0, name.Length, text, 0, true) |> ignore
-//            let md5 = new System.Security.Cryptography.MD5CryptoServiceProvider()
-//            let result = md5.ComputeHash(text)
-//            let sb = result |> Array.fold (fun (acc:System.Text.StringBuilder) next -> acc.Append(next.ToString("X2"))) (new System.Text.StringBuilder())
-//            sb.ToString()
 
     let getEmbeddedScript (assembly:System.Reflection.Assembly) (name:string) =
         use stream = assembly.GetManifestResourceStream(name)
