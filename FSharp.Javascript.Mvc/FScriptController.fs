@@ -23,7 +23,8 @@ type FScriptController() =
             let typ = System.Type.GetType("FormValidator, FSharp.Javascript.Mvc")
             let getEmbeddedScript = getEmbeddedScript typ.Assembly
             let formValidatorScript = convertModule typ
-            let scripts = ["FSharp.Javascript.js";
+            let scripts = ["jquery.js";
+                            "FSharp.Javascript.js";
                             "FSharp.Javascript.Library.js";
                             "FSharp.Javascript.Dom.js";
                             "FSharp.Javascript.Jquery.js";

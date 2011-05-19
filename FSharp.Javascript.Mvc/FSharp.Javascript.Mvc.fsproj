@@ -80,6 +80,7 @@
     <EmbeddedResource Include="FSharp.Javascript.Jquery.js" />
     <EmbeddedResource Include="FSharp.Javascript.Validation.Utils.js" />
     <Content Include="ilmerge.txt" />
+    <EmbeddedResource Include="jquery.js" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Javascript">
