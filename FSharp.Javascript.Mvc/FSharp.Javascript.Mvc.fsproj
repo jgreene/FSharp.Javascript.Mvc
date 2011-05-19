@@ -84,7 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Javascript">
-      <HintPath>C:\Projects\FSharp.Javascript.Mvc\Dependencies\FSharp.Javascript.dll</HintPath>
+      <HintPath>..\Dependencies\FSharp.Javascript.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.PowerPack, Version=1.9.9.9, Culture=neutral, PublicKeyToken=a19089b1c74d0809" />
     <Reference Include="FSharp.PowerPack.Linq, Version=1.9.9.9, Culture=neutral, PublicKeyToken=a19089b1c74d0809">
